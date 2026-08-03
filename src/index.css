@@ -1,0 +1,468 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #09090b;
+    color: #fafafa;
+  }
+}
+
+.font-mono {
+  font-family: var(--font-mono) !important;
+}
+
+.font-sans {
+  font-family: var(--font-sans) !important;
+}
+
+/* Custom Scrollbar Defaults */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+/* Editorial Glass & Glow Utilities */
+.editorial-card {
+  background-color: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 0.75rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.editorial-card:hover {
+  border-color: #3f3f46;
+}
+
+.editorial-tag {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.electric-glow {
+  box-shadow: 0 0 20px -5px rgba(59, 130, 246, 0.3);
+}
+
+/* ==========================================================================
+   100% COMPLETE DARK MODE SYSTEM (html.dark / body.dark)
+   ========================================================================== */
+
+html.dark,
+body.dark,
+html.dark body {
+  background-color: #09090b !important;
+  color: #f8fafc !important;
+}
+
+html.dark .min-h-screen {
+  background-color: #09090b !important;
+  color: #f8fafc !important;
+}
+
+/* Sidebar / Menu Styling in Dark Mode */
+html.dark aside,
+body.dark aside {
+  background-color: #09090b !important;
+  border-color: #27272a !important;
+  color: #f8fafc !important;
+}
+
+/* Deep Dark Backgrounds for Cards & Modules in Dark Mode */
+html.dark .bg-zinc-950,
+html.dark .bg-zinc-900,
+html.dark .bg-zinc-900\/90,
+html.dark .bg-zinc-900\/80,
+html.dark .bg-zinc-900\/60,
+html.dark .bg-zinc-900\/50,
+html.dark .bg-zinc-900\/30,
+html.dark .bg-zinc-950\/90,
+html.dark .bg-zinc-950\/80,
+html.dark .bg-zinc-950\/50 {
+  background-color: #18181b !important;
+}
+
+html.dark .bg-zinc-800,
+html.dark .bg-zinc-800\/80,
+html.dark .bg-zinc-800\/60,
+html.dark .bg-zinc-800\/50,
+html.dark .bg-zinc-800\/30,
+html.dark .bg-zinc-800\/20,
+html.dark .bg-zinc-800\/10 {
+  background-color: #27272a !important;
+}
+
+/* Hover States in Dark Mode */
+html.dark .hover\:bg-zinc-800:hover,
+html.dark .hover\:bg-zinc-800\/30:hover,
+html.dark .hover\:bg-zinc-800\/50:hover,
+html.dark .hover\:bg-zinc-700:hover,
+html.dark .hover\:bg-zinc-900:hover,
+html.dark .hover\:bg-zinc-900\/80:hover {
+  background-color: #3f3f46 !important;
+}
+
+/* Text Colors -> Crisp Off-White & Silver in Dark Mode */
+html.dark .text-zinc-100,
+html.dark .text-zinc-50,
+html.dark .text-zinc-200,
+html.dark .text-zinc-300 {
+  color: #f8fafc !important;
+}
+
+html.dark .text-zinc-400 {
+  color: #a1a1aa !important;
+}
+
+html.dark .text-zinc-500 {
+  color: #71717a !important;
+}
+
+/* Border Colors -> Subtle Charcoal Dividers in Dark Mode */
+html.dark .border-zinc-800,
+html.dark .border-zinc-800\/80,
+html.dark .border-zinc-800\/60,
+html.dark .border-zinc-800\/50,
+html.dark .border-zinc-800\/30,
+html.dark .border-zinc-800\/20,
+html.dark .border-zinc-700,
+html.dark .border-zinc-900 {
+  border-color: #27272a !important;
+}
+
+html.dark .divide-zinc-800 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-zinc-800\/60 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-zinc-800\/80 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #27272a !important;
+}
+
+/* Form Controls in Dark Mode */
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+html.dark select,
+html.dark textarea {
+  background-color: #09090b !important;
+  color: #f8fafc !important;
+  border-color: #27272a !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #71717a !important;
+}
+
+/* Modals & Overlays in Dark Mode */
+html.dark .fixed.inset-0 {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+  backdrop-filter: blur(6px);
+}
+
+html.dark .fixed .bg-zinc-900,
+html.dark .fixed .bg-zinc-950 {
+  background-color: #18181b !important;
+  border-color: #27272a !important;
+  color: #f8fafc !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Tables in Dark Mode */
+html.dark table thead tr {
+  background-color: #09090b !important;
+  border-color: #27272a !important;
+}
+
+html.dark table th {
+  color: #a1a1aa !important;
+}
+
+html.dark table tbody tr {
+  border-color: #27272a !important;
+}
+
+html.dark table tbody tr:hover {
+  background-color: #27272a !important;
+}
+
+/* Custom Cards in Dark Mode */
+html.dark .editorial-card {
+  background-color: #18181b !important;
+  border-color: #27272a !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+html.dark .editorial-card:hover {
+  border-color: #3f3f46 !important;
+}
+
+/* Dark Mode Scrollbars */
+html.dark ::-webkit-scrollbar-track {
+  background: #09090b;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #27272a;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* ==========================================================================
+   100% COMPLETE LIGHT MODE SYSTEM (html:not(.dark) / html.light)
+   ========================================================================== */
+
+html:not(.dark),
+html.light,
+body.light {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark) body,
+html.light body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Root Layout Container in Light Mode */
+html:not(.dark) .min-h-screen {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Sidebar / Menu Styling in Light Mode */
+html:not(.dark) aside,
+html.light aside,
+body.light aside {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Dark Backgrounds -> Pure White or Crisp Light Gray */
+html:not(.dark) .bg-zinc-950,
+html:not(.dark) .bg-zinc-900,
+html:not(.dark) .bg-zinc-900\/90,
+html:not(.dark) .bg-zinc-900\/80,
+html:not(.dark) .bg-zinc-900\/60,
+html:not(.dark) .bg-zinc-900\/50,
+html:not(.dark) .bg-zinc-900\/30,
+html:not(.dark) .bg-zinc-950\/90,
+html:not(.dark) .bg-zinc-950\/80,
+html:not(.dark) .bg-zinc-950\/50 {
+  background-color: #ffffff !important;
+}
+
+/* Medium Dark Backgrounds -> Subtle Light Gray */
+html:not(.dark) .bg-zinc-800,
+html:not(.dark) .bg-zinc-800\/80,
+html:not(.dark) .bg-zinc-800\/60,
+html:not(.dark) .bg-zinc-800\/50,
+html:not(.dark) .bg-zinc-800\/30,
+html:not(.dark) .bg-zinc-800\/20,
+html:not(.dark) .bg-zinc-800\/10 {
+  background-color: #f1f5f9 !important;
+}
+
+/* Hover States in Light Mode */
+html:not(.dark) .hover\:bg-zinc-800:hover,
+html:not(.dark) .hover\:bg-zinc-800\/30:hover,
+html:not(.dark) .hover\:bg-zinc-800\/50:hover,
+html:not(.dark) .hover\:bg-zinc-700:hover,
+html:not(.dark) .hover\:bg-zinc-900:hover,
+html:not(.dark) .hover\:bg-zinc-900\/80:hover {
+  background-color: #e2e8f0 !important;
+}
+
+/* Text Colors -> Dark Charcoal & Slate */
+html:not(.dark) .text-zinc-100,
+html:not(.dark) .text-zinc-50,
+html:not(.dark) .text-zinc-200,
+html:not(.dark) .text-zinc-300 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) .text-zinc-400 {
+  color: #475569 !important;
+}
+
+html:not(.dark) .text-zinc-500 {
+  color: #64748b !important;
+}
+
+/* Border Colors -> Crisp Light Borders */
+html:not(.dark) .border-zinc-800,
+html:not(.dark) .border-zinc-800\/80,
+html:not(.dark) .border-zinc-800\/60,
+html:not(.dark) .border-zinc-800\/50,
+html:not(.dark) .border-zinc-800\/30,
+html:not(.dark) .border-zinc-800\/20,
+html:not(.dark) .border-zinc-700,
+html:not(.dark) .border-zinc-900 {
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark) .divide-zinc-800 > :not([hidden]) ~ :not([hidden]),
+html:not(.dark) .divide-zinc-800\/60 > :not([hidden]) ~ :not([hidden]),
+html:not(.dark) .divide-zinc-800\/80 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #e2e8f0 !important;
+}
+
+/* Form Controls (Inputs, Selects, Textareas) in Light Mode */
+html:not(.dark) input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+html:not(.dark) select,
+html:not(.dark) textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark) input::placeholder,
+html:not(.dark) textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Modals & Overlays in Light Mode */
+html:not(.dark) .fixed.inset-0 {
+  background-color: rgba(15, 23, 42, 0.45) !important;
+  backdrop-filter: blur(4px);
+}
+
+html:not(.dark) .fixed .bg-zinc-900,
+html:not(.dark) .fixed .bg-zinc-950 {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Tables in Light Mode */
+html:not(.dark) table thead tr {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark) table th {
+  color: #334155 !important;
+}
+
+html:not(.dark) table tbody tr {
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) table tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Custom Cards in Light Mode */
+html:not(.dark) .editorial-card {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+html:not(.dark) .editorial-card:hover {
+  border-color: #94a3b8 !important;
+}
+
+/* Light Mode Scrollbars */
+html:not(.dark) ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+html:not(.dark) ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+html:not(.dark) ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* GLOBAL PRINT ISOLATION RULES FOR CLEAN PDF GENERATION */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0.8cm 1.0cm;
+  }
+
+  html,
+  body,
+  #root,
+  div,
+  section,
+  main,
+  article {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+  }
+
+  /* Force all modal overlays, backdrops, and containers to pure white / transparent */
+  .fixed,
+  .inset-0,
+  [class*="bg-black"],
+  [class*="bg-zinc"] {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    backdrop-filter: none !important;
+  }
+
+  /* Hide header, sidebar, control panels, buttons, inputs, selects, forms, and elements marked print:hidden */
+  header,
+  aside,
+  nav,
+  button,
+  input,
+  select,
+  form,
+  .no-print,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Reset modal backdrop positioning when printing */
+  .fixed.inset-0 {
+    position: static !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  /* Proposal A4 Sheet Isolation */
+  .proposal-print-sheet {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border-radius: 0 !important;
+  }
+
+  .a4-print-container {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}
