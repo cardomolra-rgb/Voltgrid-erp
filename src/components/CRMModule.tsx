@@ -541,6 +541,236 @@ Atenciosamente,
     window.open(targetUrl, '_blank');
   };
 
+  // Standalone Clean Window Print / PDF Export Handler (Zero Black Space)
+  const handlePrintPDFDocument = (prop: CommercialProposal) => {
+    const printWin = window.open('', '_blank', 'width=900,height=1000');
+    if (!printWin) {
+      window.print();
+      return;
+    }
+
+    const itemsHtml = prop.items
+      .map(
+        (it, idx) => `
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 10px 12px; text-align: center; font-family: monospace; color: #6b7280;">${idx + 1}</td>
+        <td style="padding: 10px 12px; font-weight: 600; color: #111827;">${it.description}</td>
+        <td style="padding: 10px 12px; text-align: center; font-family: monospace; color: #4b5563;">${it.unit}</td>
+        <td style="padding: 10px 12px; text-align: center; font-family: monospace; font-weight: 700; color: #111827;">${it.quantity}</td>
+        <td style="padding: 10px 12px; text-align: right; font-family: monospace; color: #374151;">R$ ${it.unitPrice.toLocaleString('pt-BR')}</td>
+        <td style="padding: 10px 12px; text-align: right; font-family: monospace; font-weight: 800; color: #111827;">R$ ${it.totalPrice.toLocaleString('pt-BR')}</td>
+      </tr>
+    `
+      )
+      .join('');
+
+    const logoHtml = companyConfig.logoUrl
+      ? `<img src="${companyConfig.logoUrl}" style="height: 55px; max-width: 170px; object-fit: contain;" />`
+      : `<div style="width: 48px; height: 48px; border-radius: 10px; background-color: ${companyConfig.primaryColor || '#2563eb'}; color: #fff; font-family: monospace; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 16px;">${companyConfig.nomeFantasia?.substring(0, 2).toUpperCase() || 'PV'}</div>`;
+
+    const htmlContent = `<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Proposta Comercial ${prop.proposalNumber}</title>
+    <style>
+      @page {
+        size: A4 portrait;
+        margin: 12mm 15mm 12mm 15mm;
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: #ffffff !important;
+        color: #111827 !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 11px;
+        line-height: 1.4;
+      }
+      .page-sheet {
+        width: 100%;
+        min-height: 275mm;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background: #ffffff;
+        padding: 0;
+      }
+      .header-flex {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 2px solid ${companyConfig.primaryColor || '#18181b'};
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+      }
+      .meta-grid {
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+      .total-banner {
+        background-color: #111827;
+        color: #ffffff;
+        border-radius: 8px;
+        padding: 14px 18px;
+        margin-top: 16px;
+        margin-bottom: 16px;
+        font-family: monospace;
+      }
+      .conditions-box {
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+      }
+      .signatures-row {
+        display: flex;
+        justify-content: space-between;
+        margin-top: auto;
+        padding-top: 36px;
+        text-align: center;
+      }
+      .sig-col {
+        width: 44%;
+        border-top: 1px solid #111827;
+        padding-top: 6px;
+      }
+      .footer-bar {
+        text-align: center;
+        font-size: 9px;
+        color: #6b7280;
+        font-family: monospace;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 8px;
+        margin-top: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-sheet">
+      <div>
+        <div class="header-flex">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            ${logoHtml}
+            <div>
+              <h1 style="margin: 0; font-size: 15px; font-weight: 900; font-family: monospace; text-transform: uppercase; color: #111827;">${companyConfig.razaoSocial || 'MOURA SOLUÇÕES ELÉTRICAS LTDA'}</h1>
+              <p style="margin: 2px 0 0 0; font-size: 10px; color: #4b5563; font-family: monospace;">CNPJ: ${companyConfig.cnpj} | CREA: ${companyConfig.creaJuridico}</p>
+              <p style="margin: 2px 0 0 0; font-size: 10px; color: #6b7280;">${companyConfig.endereco} — ${companyConfig.cidade}/${companyConfig.estado} | Tel: ${companyConfig.telefone}</p>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div style="background-color: ${companyConfig.primaryColor || '#2563eb'}; color: white; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: bold; font-family: monospace; display: inline-block; margin-bottom: 4px;">PROPOSTA COMERCIAL</div>
+            <div style="font-size: 15px; font-weight: 900; font-family: monospace; color: #111827;">${prop.proposalNumber}</div>
+            <div style="font-size: 10px; color: #6b7280; font-family: monospace;">Versão: ${prop.currentVersion}</div>
+          </div>
+        </div>
+
+        <div class="meta-grid">
+          <div style="width: 48%;">
+            <div style="font-size: 9px; font-weight: bold; color: #6b7280; text-transform: uppercase; font-family: monospace; border-bottom: 1px solid #e5e7eb; padding-bottom: 3px; margin-bottom: 6px;">DADOS DO CLIENTE</div>
+            <div style="font-weight: 700; font-size: 12px; color: #111827;">${prop.clientName}</div>
+            <div style="color: #4b5563; font-family: monospace; margin-top: 2px;">CPF/CNPJ: ${prop.clientCpfCnpj}</div>
+            <div style="color: #4b5563; margin-top: 2px;">Endereço: ${prop.clientAddress} (${prop.clientCity}/${prop.clientState})</div>
+            <div style="color: #4b5563; margin-top: 2px;">Contato: ${prop.clientPhone} | ${prop.clientEmail}</div>
+          </div>
+          <div style="width: 48%; text-align: right;">
+            <div style="font-size: 9px; font-weight: bold; color: #6b7280; text-transform: uppercase; font-family: monospace; border-bottom: 1px solid #e5e7eb; padding-bottom: 3px; margin-bottom: 6px;">DETALHES DO ORÇAMENTO</div>
+            <div style="color: #4b5563; margin-top: 2px;">Data da Proposta: <strong style="font-family: monospace; color: #111827;">${prop.date}</strong></div>
+            <div style="color: #4b5563; margin-top: 2px;">Validade: <strong style="font-family: monospace; color: #111827;">${prop.validityDate}</strong></div>
+            <div style="color: #4b5563; margin-top: 2px;">Tipo de Serviço: <strong style="color: #111827;">${prop.proposalType}</strong></div>
+            <div style="color: #4b5563; margin-top: 2px;">Responsável: <strong style="color: #111827;">${prop.sellerName}</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <h3 style="font-size: 10px; font-weight: 700; font-family: monospace; text-transform: uppercase; border-bottom: 2px solid #111827; padding-bottom: 4px; margin-top: 0; margin-bottom: 8px;">1. ITENS E ESPECIFICAÇÕES DOS SERVIÇOS</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+            <thead>
+              <tr style="background-color: #f3f4f6; text-transform: uppercase; font-family: monospace; font-size: 9px; border-top: 1px solid #d1d5db; border-bottom: 1px solid #d1d5db;">
+                <th style="padding: 6px; text-align: center; width: 40px;">Item</th>
+                <th style="padding: 6px 12px; text-align: left;">Descrição do Serviço / Material</th>
+                <th style="padding: 6px; text-align: center; width: 50px;">Unid.</th>
+                <th style="padding: 6px; text-align: center; width: 50px;">Qtd.</th>
+                <th style="padding: 6px 12px; text-align: right; width: 110px;">Valor Unit.</th>
+                <th style="padding: 6px 12px; text-align: right; width: 120px;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="total-banner">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 900; text-transform: uppercase; font-size: 11px;">TOTAL GERAL DA PROPOSTA COMERCIAL:</span>
+            <span style="font-size: 18px; font-weight: 900; color: #34d399;">R$ ${prop.totalValue.toLocaleString('pt-BR')}</span>
+          </div>
+          <div style="font-size: 10px; color: #d1d5db; font-style: italic; margin-top: 4px; padding-top: 4px; border-top: 1px solid #374151;">
+            Valor Por Extenso: <strong style="color: #fde047;">${prop.totalValueInWords}</strong>
+          </div>
+        </div>
+
+        <div class="conditions-box">
+          <h3 style="font-size: 10px; font-weight: 700; font-family: monospace; text-transform: uppercase; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; margin-top: 0; margin-bottom: 8px; color: #111827;">2. CONDIÇÕES COMERCIAIS E GARANTIAS</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 10px; color: #374151;">
+            <div>• Prazo de Execução: <strong>${prop.conditions?.executionTerm || ''}</strong></div>
+            <div>• Prazo de Entrega: <strong>${prop.conditions?.deliveryTerm || ''}</strong></div>
+            <div>• Forma de Pagamento: <strong>${prop.conditions?.paymentMethod || ''}</strong></div>
+            <div>• Garantia Técnica: <strong>${prop.conditions?.warranty || ''}</strong></div>
+            <div style="grid-column: span 2;">• Responsabilidades da Contratada: ${prop.conditions?.companyResponsibilities || ''}</div>
+            <div style="grid-column: span 2;">• Responsabilidades do Contratante: ${prop.conditions?.clientResponsibilities || ''}</div>
+          </div>
+        </div>
+
+        ${prop.notes ? `<div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 10px 14px; font-size: 10px; color: #92400e; margin-bottom: 16px;"><strong style="font-family: monospace; text-transform: uppercase; font-size: 9px; display: block; margin-bottom: 2px;">Observações Finais:</strong>${prop.notes}</div>` : ''}
+      </div>
+
+      <div>
+        <div class="signatures-row">
+          <div class="sig-col">
+            <strong style="display: block; color: #111827; font-size: 11px;">${companyConfig.razaoSocial || 'MOURA SOLUÇÕES ELÉTRICAS LTDA'}</strong>
+            <span style="font-size: 9px; color: #6b7280; font-family: monospace;">Emitente da Proposta</span>
+          </div>
+          <div class="sig-col">
+            <strong style="display: block; color: #111827; font-size: 11px;">${prop.clientName}</strong>
+            <span style="font-size: 9px; color: #6b7280; font-family: monospace;">De Acordo / Aceite do Cliente</span>
+          </div>
+        </div>
+
+        <div class="footer-bar">
+          <p style="margin: 0; font-weight: 700; color: #374151;">ProObras ERP — Sistema Integrado de Gestão de Obras de Energia Elétrica e Distribuição</p>
+          <p style="margin: 2px 0 0 0;">Agradecemos pela confiança. Este documento possui validade legal de ${prop.conditions?.validityDays || 15} dias corridos.</p>
+        </div>
+      </div>
+    </div>
+    <script>
+      window.onload = function() {
+        setTimeout(function() {
+          window.print();
+          window.close();
+        }, 250);
+      };
+    </script>
+  </body>
+</html>`;
+
+    printWin.document.write(htmlContent);
+    printWin.document.close();
+  };
+
+
   // Convert Proposal to Contract Handler
   const handleConvertToContract = (prop: CommercialProposal) => {
     const updated = proposalList.map((p) =>
@@ -1638,7 +1868,7 @@ Atenciosamente,
 
               <div className="flex items-center space-x-2">
                 <button
-                  onClick={() => window.print()}
+                  onClick={() => handlePrintPDFDocument(previewProposal)}
                   className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs flex items-center space-x-2 shadow-md cursor-pointer transition-all"
                 >
                   <Printer className="w-4 h-4" />
