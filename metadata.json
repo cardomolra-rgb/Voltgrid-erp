@@ -1,5 +1,6 @@
 {
-  "name": "VoltGrid ERP - Gestão de Obras de Energia",
+  "name": "ProObras ERP - Gestão de Obras de Energia",
+
   "description": "ERP de Alta Performance para Engenharia Elétrica, Redes de Distribuição (RDU/RDR), Subestações, Frota, Compras, Estoque, Financeiro e Assistente IA.",
   "requestFramePermissions": ["geolocation"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

@@ -1,6 +1,7 @@
-# ⚡ VoltGrid ERP — Gestão Integrada de Obras de Energia Elétrica
+# ⚡ ProObras ERP — Gestão Integrada de Obras de Energia Elétrica
 
-**VoltGrid ERP** é um sistema completo de gestão operacional, financeira, comercial e regulatória projetado especificamente para empresas de engenharia elétrica, empreiteiras de energia e construtoras de redes de distribuição (RDU/RDR 34,5 kV, Subestações e Iluminação Pública).
+**ProObras ERP** é um sistema completo de gestão operacional, financeira, comercial e regulatória projetado especificamente para empresas de engenharia elétrica, empreiteiras de energia e construtoras de redes de distribuição (RDU/RDR 34,5 kV, Subestações e Iluminação Pública).
+
 
 ---
 

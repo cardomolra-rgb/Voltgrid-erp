@@ -104,10 +104,10 @@ export default function App() {
 
   // Registered Users and Permissions State
   const [systemUsers, setSystemUsers] = useState<SystemUserItem[]>(() =>
-    loadLocal('voltgrid_system_users', INITIAL_SYSTEM_USERS)
+    loadLocal('proobras_system_users', INITIAL_SYSTEM_USERS)
   );
   const [activeUser, setActiveUser] = useState<SystemUserItem | null>(() =>
-    loadLocal('voltgrid_active_user', null)
+    loadLocal('proobras_active_user', null)
   );
 
   // Sync role with activeUser when loaded or updated
@@ -122,7 +122,7 @@ export default function App() {
     setActiveUser(user);
     setRole(user.role);
     try {
-      localStorage.setItem('voltgrid_active_user', JSON.stringify(user));
+      localStorage.setItem('proobras_active_user', JSON.stringify(user));
     } catch (e) {
       console.warn('Error saving active user session:', e);
     }
@@ -131,7 +131,7 @@ export default function App() {
   const handleLogout = () => {
     setActiveUser(null);
     try {
-      localStorage.removeItem('voltgrid_active_user');
+      localStorage.removeItem('proobras_active_user');
     } catch (e) {
       console.warn('Error clearing active user session:', e);
     }
@@ -143,53 +143,53 @@ export default function App() {
 
   // App Master Data States (With Automatic Local Storage Persistence)
   const [companyConfig, setCompanyConfig] = useState<SystemCompanyConfig>(() =>
-    loadLocal('voltgrid_company_config', INITIAL_COMPANY_CONFIG)
+    loadLocal('proobras_company_config', INITIAL_COMPANY_CONFIG)
   );
-  const [obras, setObras] = useState<Obra[]>(() => loadLocal('voltgrid_obras', INITIAL_OBRAS));
-  const [clients, setClients] = useState<Client[]>(() => loadLocal('voltgrid_clients', INITIAL_CLIENTS));
-  const [inventory, setInventory] = useState<InventoryItem[]>(() => loadLocal('voltgrid_inventory', INITIAL_INVENTORY));
-  const [movements, setMovements] = useState<StockMovement[]>(() => loadLocal('voltgrid_movements', INITIAL_STOCK_MOVEMENTS));
-  const [purchases, setPurchases] = useState<PurchaseOrder[]>(() => loadLocal('voltgrid_purchases', INITIAL_PURCHASE_ORDERS));
-  const [financials, setFinancials] = useState<FinancialAccount[]>(() => loadLocal('voltgrid_financials', INITIAL_FINANCIAL_ACCOUNTS));
-  const [vehicles, setVehicles] = useState<Vehicle[]>(() => loadLocal('voltgrid_vehicles', INITIAL_VEHICLES));
-  const [fuelLogs, setFuelLogs] = useState<FuelLog[]>(() => loadLocal('voltgrid_fuel_logs', INITIAL_FUEL_LOGS));
-  const [employees, setEmployees] = useState<Employee[]>(() => loadLocal('voltgrid_employees', INITIAL_EMPLOYEES));
-  const [checklists, setChecklists] = useState<ProtocolChecklistItem[]>(() => loadLocal('voltgrid_checklists', INITIAL_PROTOCOL_CHECKLISTS));
-  const [documents, setDocuments] = useState<ObraDocument[]>(() => loadLocal('voltgrid_documents', INITIAL_DOCUMENTS));
-  const [expenses, setExpenses] = useState<ObraExpense[]>(() => loadLocal('voltgrid_expenses', INITIAL_EXPENSES));
-  const [rdos, setRdos] = useState<DiarioObraRDO[]>(() => loadLocal('voltgrid_rdos', INITIAL_RDOS));
-  const [ganttTasks, setGanttTasks] = useState<GanttTask[]>(() => loadLocal('voltgrid_gantt_tasks', INITIAL_GANTT_TASKS));
-  const [proposals, setProposals] = useState<CommercialProposal[]>(() => loadLocal('voltgrid_proposals', []));
-  const [employeePaymentLogs, setEmployeePaymentLogs] = useState<EmployeePaymentLog[]>(() => loadLocal('voltgrid_payment_logs', []));
-  const [approvedContracts, setApprovedContracts] = useState<ApprovedContract[]>(() => loadLocal('voltgrid_approved_contracts', []));
+  const [obras, setObras] = useState<Obra[]>(() => loadLocal('proobras_obras', INITIAL_OBRAS));
+  const [clients, setClients] = useState<Client[]>(() => loadLocal('proobras_clients', INITIAL_CLIENTS));
+  const [inventory, setInventory] = useState<InventoryItem[]>(() => loadLocal('proobras_inventory', INITIAL_INVENTORY));
+  const [movements, setMovements] = useState<StockMovement[]>(() => loadLocal('proobras_movements', INITIAL_STOCK_MOVEMENTS));
+  const [purchases, setPurchases] = useState<PurchaseOrder[]>(() => loadLocal('proobras_purchases', INITIAL_PURCHASE_ORDERS));
+  const [financials, setFinancials] = useState<FinancialAccount[]>(() => loadLocal('proobras_financials', INITIAL_FINANCIAL_ACCOUNTS));
+  const [vehicles, setVehicles] = useState<Vehicle[]>(() => loadLocal('proobras_vehicles', INITIAL_VEHICLES));
+  const [fuelLogs, setFuelLogs] = useState<FuelLog[]>(() => loadLocal('proobras_fuel_logs', INITIAL_FUEL_LOGS));
+  const [employees, setEmployees] = useState<Employee[]>(() => loadLocal('proobras_employees', INITIAL_EMPLOYEES));
+  const [checklists, setChecklists] = useState<ProtocolChecklistItem[]>(() => loadLocal('proobras_checklists', INITIAL_PROTOCOL_CHECKLISTS));
+  const [documents, setDocuments] = useState<ObraDocument[]>(() => loadLocal('proobras_documents', INITIAL_DOCUMENTS));
+  const [expenses, setExpenses] = useState<ObraExpense[]>(() => loadLocal('proobras_expenses', INITIAL_EXPENSES));
+  const [rdos, setRdos] = useState<DiarioObraRDO[]>(() => loadLocal('proobras_rdos', INITIAL_RDOS));
+  const [ganttTasks, setGanttTasks] = useState<GanttTask[]>(() => loadLocal('proobras_gantt_tasks', INITIAL_GANTT_TASKS));
+  const [proposals, setProposals] = useState<CommercialProposal[]>(() => loadLocal('proobras_proposals', []));
+  const [employeePaymentLogs, setEmployeePaymentLogs] = useState<EmployeePaymentLog[]>(() => loadLocal('proobras_payment_logs', []));
+  const [approvedContracts, setApprovedContracts] = useState<ApprovedContract[]>(() => loadLocal('proobras_approved_contracts', []));
 
   // Auto-Save Effect: Persists state directly to browser/app folder storage whenever modified
   useEffect(() => {
     try {
-      localStorage.setItem('voltgrid_system_users', JSON.stringify(systemUsers));
+      localStorage.setItem('proobras_system_users', JSON.stringify(systemUsers));
       if (activeUser) {
-        localStorage.setItem('voltgrid_active_user', JSON.stringify(activeUser));
+        localStorage.setItem('proobras_active_user', JSON.stringify(activeUser));
       } else {
-        localStorage.removeItem('voltgrid_active_user');
+        localStorage.removeItem('proobras_active_user');
       }
-      localStorage.setItem('voltgrid_company_config', JSON.stringify(companyConfig));
-      localStorage.setItem('voltgrid_obras', JSON.stringify(obras));
-      localStorage.setItem('voltgrid_clients', JSON.stringify(clients));
-      localStorage.setItem('voltgrid_inventory', JSON.stringify(inventory));
-      localStorage.setItem('voltgrid_movements', JSON.stringify(movements));
-      localStorage.setItem('voltgrid_purchases', JSON.stringify(purchases));
-      localStorage.setItem('voltgrid_financials', JSON.stringify(financials));
-      localStorage.setItem('voltgrid_vehicles', JSON.stringify(vehicles));
-      localStorage.setItem('voltgrid_fuel_logs', JSON.stringify(fuelLogs));
-      localStorage.setItem('voltgrid_employees', JSON.stringify(employees));
-      localStorage.setItem('voltgrid_checklists', JSON.stringify(checklists));
-      localStorage.setItem('voltgrid_documents', JSON.stringify(documents));
-      localStorage.setItem('voltgrid_expenses', JSON.stringify(expenses));
-      localStorage.setItem('voltgrid_rdos', JSON.stringify(rdos));
-      localStorage.setItem('voltgrid_gantt_tasks', JSON.stringify(ganttTasks));
-      localStorage.setItem('voltgrid_proposals', JSON.stringify(proposals));
-      localStorage.setItem('voltgrid_payment_logs', JSON.stringify(employeePaymentLogs));
-      localStorage.setItem('voltgrid_approved_contracts', JSON.stringify(approvedContracts));
+      localStorage.setItem('proobras_company_config', JSON.stringify(companyConfig));
+      localStorage.setItem('proobras_obras', JSON.stringify(obras));
+      localStorage.setItem('proobras_clients', JSON.stringify(clients));
+      localStorage.setItem('proobras_inventory', JSON.stringify(inventory));
+      localStorage.setItem('proobras_movements', JSON.stringify(movements));
+      localStorage.setItem('proobras_purchases', JSON.stringify(purchases));
+      localStorage.setItem('proobras_financials', JSON.stringify(financials));
+      localStorage.setItem('proobras_vehicles', JSON.stringify(vehicles));
+      localStorage.setItem('proobras_fuel_logs', JSON.stringify(fuelLogs));
+      localStorage.setItem('proobras_employees', JSON.stringify(employees));
+      localStorage.setItem('proobras_checklists', JSON.stringify(checklists));
+      localStorage.setItem('proobras_documents', JSON.stringify(documents));
+      localStorage.setItem('proobras_expenses', JSON.stringify(expenses));
+      localStorage.setItem('proobras_rdos', JSON.stringify(rdos));
+      localStorage.setItem('proobras_gantt_tasks', JSON.stringify(ganttTasks));
+      localStorage.setItem('proobras_proposals', JSON.stringify(proposals));
+      localStorage.setItem('proobras_payment_logs', JSON.stringify(employeePaymentLogs));
+      localStorage.setItem('proobras_approved_contracts', JSON.stringify(approvedContracts));
     } catch (err) {
       console.warn('LocalStorage save error:', err);
     }

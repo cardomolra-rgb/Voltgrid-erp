@@ -25,9 +25,9 @@ interface AuthScreenProps {
 export const AuthScreen: React.FC<AuthScreenProps> = ({
   systemUsers,
   onLoginSuccess,
-  companyName = 'ProObras ERP • VoltGrid',
+  companyName = 'ProObras ERP',
 }) => {
-  const [emailOrUser, setEmailOrUser] = useState('admin@voltgrid.com.br');
+  const [emailOrUser, setEmailOrUser] = useState('admin@proobras.com.br');
   const [password, setPassword] = useState('admin123');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -37,7 +37,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
   const defaultAdmin: SystemUserItem = {
     id: 'USR-ADMIN',
     name: 'Administrador Master',
-    email: 'admin@voltgrid.com.br',
+    email: 'admin@proobras.com.br',
     cpf: '000.000.000-00',
     phone: '(63) 99999-9999',
     role: 'Administrador',
@@ -104,7 +104,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
 
   const handleQuickAdminLogin = () => {
     const adminUser = usersList.find((u) => u.role === 'Administrador' || u.role === 'Diretor') || usersList[0];
-    setEmailOrUser(adminUser.email || 'admin@voltgrid.com.br');
+    setEmailOrUser(adminUser.email || 'admin@proobras.com.br');
     setPassword(adminUser.password || 'admin123');
     setIsLoading(true);
 
@@ -132,7 +132,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
               Pro<span className="text-blue-500">Obras</span>
             </span>
             <span className="ml-2 text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full border bg-blue-500/10 text-blue-400 border-blue-500/20 font-mono">
-              ERP VOLTGRID
+              ERP PROOBRAS
             </span>
           </div>
         </div>
@@ -177,7 +177,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
               <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-1">
                 <div className="p-2 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-0.5">
                   <span className="text-[10px] text-zinc-500 uppercase block">E-mail / Usuário</span>
-                  <span className="text-blue-300 font-bold select-all">admin@voltgrid.com.br</span>
+                  <span className="text-blue-300 font-bold select-all">admin@proobras.com.br</span>
                 </div>
                 <div className="p-2 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-0.5">
                   <span className="text-[10px] text-zinc-500 uppercase block">Senha Padrão</span>
@@ -208,7 +208,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                     required
                     value={emailOrUser}
                     onChange={(e) => setEmailOrUser(e.target.value)}
-                    placeholder="ex: admin@voltgrid.com.br"
+                    placeholder="ex: admin@proobras.com.br"
                     className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs font-medium focus:outline-none focus:border-blue-500 transition-colors"
                   />
                 </div>
@@ -310,8 +310,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
 
       {/* Footer info */}
       <footer className="w-full max-w-7xl mx-auto px-6 py-4 text-center text-zinc-500 text-[11px] font-mono z-10">
-        © 2026 VoltGrid Engenharia • Moura Soluções Elétricas. Todos os direitos reservados.
+        © 2026 ProObras Engenharia • Moura Soluções Elétricas. Todos os direitos reservados.
       </footer>
     </div>
   );
 };
+

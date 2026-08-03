@@ -1,6 +1,7 @@
 {
-  "name": "voltgrid-erp-gestao-obras-energia",
-  "description": "VoltGrid ERP - Sistema de Gestão Integrada de Obras de Energia Elétrica, Redes de Distribuição (RDU/RDR), Subestações, Frotas, DRE Executivo e CRM.",
+  "name": "proobras-erp-gestao-obras-energia",
+  "description": "ProObras ERP - Sistema de Gestão Integrada de Obras de Energia Elétrica, Redes de Distribuição (RDU/RDR), Subestações, Frotas, DRE Executivo e CRM.",
+
   "private": true,
   "version": "1.0.0",
   "type": "module",

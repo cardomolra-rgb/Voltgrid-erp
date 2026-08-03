@@ -48,7 +48,7 @@ export const INITIAL_SYSTEM_USERS = [
   {
     id: 'USR-ADMIN',
     name: 'Administrador Master',
-    email: 'admin@voltgrid.com.br',
+    email: 'admin@proobras.com.br',
     cpf: '000.000.000-00',
     phone: '(63) 99999-9999',
     role: 'Administrador' as const,
