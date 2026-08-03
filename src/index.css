@@ -387,11 +387,14 @@ html:not(.dark) ::-webkit-scrollbar-thumb:hover {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 0.8cm 1.0cm;
+    margin: 10mm 12mm 10mm 12mm;
   }
 
   html,
   body,
+  html.dark,
+  body.dark,
+  html.dark body,
   #root,
   div,
   section,
@@ -400,6 +403,16 @@ html:not(.dark) ::-webkit-scrollbar-thumb:hover {
     background: #ffffff !important;
     background-color: #ffffff !important;
     color: #000000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  html.dark *,
+  body.dark * {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #000000 !important;
+    border-color: #d1d5db !important;
     box-shadow: none !important;
   }
 
@@ -442,9 +455,12 @@ html:not(.dark) ::-webkit-scrollbar-thumb:hover {
 
   /* Proposal A4 Sheet Isolation */
   .proposal-print-sheet {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
     position: static !important;
     width: 100% !important;
+    min-height: 270mm !important;
     padding: 0 !important;
     margin: 0 !important;
     border: none !important;
@@ -452,6 +468,8 @@ html:not(.dark) ::-webkit-scrollbar-thumb:hover {
     background: #ffffff !important;
     color: #000000 !important;
     border-radius: 0 !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   .a4-print-container {
@@ -466,3 +484,4 @@ html:not(.dark) ::-webkit-scrollbar-thumb:hover {
     color: #000000 !important;
   }
 }
+

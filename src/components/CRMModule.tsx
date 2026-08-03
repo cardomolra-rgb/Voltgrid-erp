@@ -1625,12 +1625,12 @@ Atenciosamente,
 
       {/* MODAL: VISUALIZADOR DE PDF PROFISSIONAL A4 (IMPRESSÃO) */}
       {previewProposal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 font-sans overflow-y-auto print:p-0 print:m-0 print:bg-white print:static print:h-auto print:w-full print:overflow-visible">
-          <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-zinc-950 border border-zinc-800 p-6 space-y-6 shadow-2xl print:max-w-none print:max-h-none print:bg-white print:text-black print:p-0 print:m-0 print:border-none print:shadow-none print:overflow-visible font-sans">
-            {/* Modal Controls (Hidden when printing) */}
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3 print:hidden">
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-start bg-zinc-950/90 backdrop-blur-md p-4 sm:p-6 font-sans overflow-y-auto print:p-0 print:m-0 print:bg-white print:static print:h-auto print:w-full print:overflow-visible">
+          <div className="w-full max-w-4xl rounded-2xl bg-zinc-900 border border-zinc-800 shadow-2xl overflow-hidden print:max-w-none print:bg-white print:text-black print:p-0 print:m-0 print:border-none print:shadow-none print:overflow-visible font-sans my-auto">
+            {/* Modal Control Header (Hidden when printing) */}
+            <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900 p-4 print:hidden">
               <div className="flex items-center space-x-2">
-                <Eye className="w-4 h-4 text-amber-400" />
+                <Eye className="w-4.5 h-4.5 text-amber-400" />
                 <span className="font-bold text-zinc-100 font-mono text-xs">
                   Proposta Comercial {previewProposal.proposalNumber} ({previewProposal.currentVersion})
                 </span>
@@ -1639,171 +1639,190 @@ Atenciosamente,
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => window.print()}
-                  className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs flex items-center space-x-1.5 shadow-md cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs flex items-center space-x-2 shadow-md cursor-pointer transition-all"
                 >
                   <Printer className="w-4 h-4" />
-                  <span>Imprimir / Gerar PDF</span>
+                  <span>Imprimir / Gerar PDF (A4)</span>
                 </button>
 
                 <button
                   onClick={() => handleSendWhatsApp(previewProposal)}
-                  className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center space-x-1.5 shadow-md cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center space-x-2 shadow-md cursor-pointer transition-all"
                 >
                   <MessageSquare className="w-4 h-4" />
                   <span>Enviar WhatsApp</span>
                 </button>
 
-                <button onClick={() => setPreviewProposal(null)} className="text-zinc-400 hover:text-zinc-100 p-1">
+                <button onClick={() => setPreviewProposal(null)} className="text-zinc-400 hover:text-zinc-100 p-1.5 rounded-lg bg-zinc-800">
                   <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
 
-            {/* A4 PRINTABLE DOCUMENT BODY (BORDERLESS, SINGLE A4 PAGE FORMAT) */}
-            <div className="proposal-print-sheet bg-white text-zinc-950 font-sans p-6 sm:p-8 space-y-3.5 print:p-0 print:m-0 print:w-full print:shadow-none print:border-none">
-              {/* PDF Header with Company Logo */}
-              <div className="flex items-center justify-between border-b-2 pb-3" style={{ borderColor: companyConfig.primaryColor || '#18181b' }}>
-                <div className="flex items-center space-x-3">
-                  {companyConfig.logoUrl ? (
-                    <img
-                      src={companyConfig.logoUrl}
-                      alt="Logo Empresa"
-                      className="h-14 max-w-[160px] object-contain shrink-0"
-                    />
-                  ) : (
-                    <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-white font-mono text-sm shrink-0"
+            {/* A4 PRINTABLE DOCUMENT SHEET (FULL PAGE FORMAT FIT) */}
+            <div className="proposal-print-sheet bg-white text-zinc-950 font-sans p-8 sm:p-12 flex flex-col justify-between min-h-[280mm] print:min-h-[270mm] space-y-6 print:p-0 print:m-0 print:w-full print:shadow-none print:border-none">
+              {/* TOP / BODY CONTENT CONTAINER */}
+              <div className="space-y-5 flex-1">
+                {/* PDF Header with Company Logo */}
+                <div className="flex items-center justify-between border-b-2 pb-4" style={{ borderColor: companyConfig.primaryColor || '#18181b' }}>
+                  <div className="flex items-center space-x-4">
+                    {companyConfig.logoUrl ? (
+                      <img
+                        src={companyConfig.logoUrl}
+                        alt="Logo Empresa"
+                        className="h-16 max-w-[180px] object-contain shrink-0"
+                      />
+                    ) : (
+                      <div
+                        className="w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-white font-mono text-base shrink-0 shadow-md"
+                        style={{ backgroundColor: companyConfig.primaryColor || '#2563eb' }}
+                      >
+                        {companyConfig.nomeFantasia?.substring(0, 2).toUpperCase() || 'PV'}
+                      </div>
+                    )}
+
+                    <div className="space-y-0.5">
+                      <h1 className="text-lg font-black text-zinc-950 font-mono tracking-tight uppercase leading-tight">
+                        {companyConfig.razaoSocial || 'MOURA SOLUÇÕES ELÉTRICAS LTDA'}
+                      </h1>
+                      <p className="text-xs text-zinc-600 font-mono">
+                        CNPJ: {companyConfig.cnpj} | CREA Jurídico: {companyConfig.creaJuridico}
+                      </p>
+                      <p className="text-[11px] text-zinc-500">
+                        {companyConfig.endereco} — {companyConfig.cidade}/{companyConfig.estado} | Tel: {companyConfig.telefone}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <span
+                      className="text-[10px] font-extrabold uppercase font-mono tracking-wider px-3 py-1 rounded-md text-white block mb-1 shadow-sm"
                       style={{ backgroundColor: companyConfig.primaryColor || '#2563eb' }}
                     >
-                      {companyConfig.nomeFantasia?.substring(0, 2).toUpperCase() || 'PV'}
-                    </div>
-                  )}
-
-                  <div className="space-y-0.5">
-                    <h1 className="text-base font-black text-zinc-950 font-mono tracking-tight uppercase leading-tight">
-                      {companyConfig.razaoSocial || 'MOURA SOLUÇÕES ELÉTRICAS LTDA'}
-                    </h1>
-                    <p className="text-[10.5px] text-zinc-600 font-mono">
-                      CNPJ: {companyConfig.cnpj} | CREA Jurídico: {companyConfig.creaJuridico}
-                    </p>
-                    <p className="text-[10px] text-zinc-500">
-                      {companyConfig.endereco} — {companyConfig.cidade}/{companyConfig.estado} | Tel: {companyConfig.telefone}
-                    </p>
+                      PROPOSTA COMERCIAL
+                    </span>
+                    <span className="text-base font-black font-mono text-zinc-950 block">{previewProposal.proposalNumber}</span>
+                    <span className="text-xs font-mono text-zinc-500">Versão: {previewProposal.currentVersion}</span>
                   </div>
                 </div>
 
-                <div className="text-right shrink-0">
-                  <span
-                    className="text-[9.5px] font-extrabold uppercase font-mono tracking-wider px-2 py-0.5 rounded text-white block mb-1 shadow-sm"
-                    style={{ backgroundColor: companyConfig.primaryColor || '#2563eb' }}
-                  >
-                    PROPOSTA COMERCIAL
-                  </span>
-                  <span className="text-sm font-black font-mono text-zinc-950 block">{previewProposal.proposalNumber}</span>
-                  <span className="text-[10px] font-mono text-zinc-500">Versão: {previewProposal.currentVersion}</span>
-                </div>
-              </div>
+                {/* Proposal Metadata & Client Info (Structured Box) */}
+                <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 grid grid-cols-2 gap-6 text-xs">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold text-zinc-500 uppercase font-mono tracking-wider block border-b border-zinc-200 pb-1">
+                      DADOS DO CLIENTE
+                    </span>
+                    <p className="font-bold text-zinc-950 text-sm">{previewProposal.clientName}</p>
+                    <p className="text-zinc-700 font-mono">CPF/CNPJ: {previewProposal.clientCpfCnpj}</p>
+                    <p className="text-zinc-700">Endereço: {previewProposal.clientAddress} ({previewProposal.clientCity}/{previewProposal.clientState})</p>
+                    <p className="text-zinc-700">Contato: {previewProposal.clientPhone} | {previewProposal.clientEmail}</p>
+                  </div>
 
-              {/* Proposal Metadata & Client Info (Clean 2-Column Borderless Layout) */}
-              <div className="grid grid-cols-2 gap-6 text-[11px] py-1 border-b border-zinc-200 pb-3">
-                <div className="space-y-0.5">
-                  <span className="text-[9.5px] font-bold text-zinc-500 uppercase font-mono tracking-wider block">DADOS DO CLIENTE</span>
-                  <p className="font-bold text-zinc-950 text-xs">{previewProposal.clientName}</p>
-                  <p className="text-zinc-700 font-mono">CPF/CNPJ: {previewProposal.clientCpfCnpj}</p>
-                  <p className="text-zinc-700">Endereço: {previewProposal.clientAddress} ({previewProposal.clientCity}/{previewProposal.clientState})</p>
-                  <p className="text-zinc-700">Contato: {previewProposal.clientPhone} | {previewProposal.clientEmail}</p>
+                  <div className="space-y-1 text-right">
+                    <span className="text-[10px] font-bold text-zinc-500 uppercase font-mono tracking-wider block border-b border-zinc-200 pb-1">
+                      DETALHES DO ORÇAMENTO
+                    </span>
+                    <p className="text-zinc-700">Data da Proposta: <strong className="font-mono text-zinc-950">{previewProposal.date}</strong></p>
+                    <p className="text-zinc-700">Validade do Orçamento: <strong className="font-mono text-zinc-950">{previewProposal.validityDate}</strong></p>
+                    <p className="text-zinc-700">Tipo de Serviço: <strong className="text-zinc-950">{previewProposal.proposalType}</strong></p>
+                    <p className="text-zinc-700">Vendedor/Responsável: <strong className="text-zinc-950">{previewProposal.sellerName}</strong></p>
+                  </div>
                 </div>
 
-                <div className="space-y-0.5 text-right">
-                  <span className="text-[9.5px] font-bold text-zinc-500 uppercase font-mono tracking-wider block">DETALHES DO ORÇAMENTO</span>
-                  <p className="text-zinc-700">Data da Proposta: <strong className="font-mono text-zinc-950">{previewProposal.date}</strong></p>
-                  <p className="text-zinc-700">Validade do Orçamento: <strong className="font-mono text-zinc-950">{previewProposal.validityDate}</strong></p>
-                  <p className="text-zinc-700">Tipo de Serviço: <strong className="text-zinc-950">{previewProposal.proposalType}</strong></p>
-                  <p className="text-zinc-700">Vendedor/Responsável: <strong className="text-zinc-950">{previewProposal.sellerName}</strong></p>
-                </div>
-              </div>
-
-              {/* Items Table (Border-free clean layout) */}
-              <div className="space-y-1.5">
-                <h3 className="text-[10.5px] font-bold text-zinc-900 uppercase font-mono tracking-wider border-b border-zinc-300 pb-1">
-                  1. ITENS E ESPECIFICAÇÕES DOS SERVIÇOS
-                </h3>
-                <table className="w-full text-left text-[11px] border-collapse">
-                  <thead>
-                    <tr className="bg-zinc-100 text-zinc-800 font-mono uppercase text-[9px] border-b border-zinc-300">
-                      <th className="py-1 px-2 text-center w-10">Item</th>
-                      <th className="py-1 px-3">Descrição do Serviço / Material</th>
-                      <th className="py-1 px-2 text-center w-14">Unid.</th>
-                      <th className="py-1 px-2 text-center w-14">Qtd.</th>
-                      <th className="py-1 px-3 text-right w-28">Valor Unit.</th>
-                      <th className="py-1 px-3 text-right w-28">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-zinc-200">
-                    {previewProposal.items.map((it, idx) => (
-                      <tr key={it.id}>
-                        <td className="py-1.5 px-2 text-center font-mono font-semibold text-zinc-500">{idx + 1}</td>
-                        <td className="py-1.5 px-3 font-medium text-zinc-950">{it.description}</td>
-                        <td className="py-1.5 px-2 text-center font-mono text-zinc-600">{it.unit}</td>
-                        <td className="py-1.5 px-2 text-center font-mono text-zinc-950 font-semibold">{it.quantity}</td>
-                        <td className="py-1.5 px-3 text-right font-mono text-zinc-700">R$ {it.unitPrice.toLocaleString('pt-BR')}</td>
-                        <td className="py-1.5 px-3 text-right font-mono font-bold text-zinc-950">R$ {it.totalPrice.toLocaleString('pt-BR')}</td>
+                {/* Items Table */}
+                <div className="space-y-2">
+                  <h3 className="text-xs font-bold text-zinc-900 uppercase font-mono tracking-wider border-b-2 border-zinc-950 pb-1">
+                    1. ITENS E ESPECIFICAÇÕES DOS SERVIÇOS
+                  </h3>
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-zinc-100 text-zinc-900 font-mono uppercase text-[10px] border-y border-zinc-300">
+                        <th className="py-2 px-3 text-center w-12">Item</th>
+                        <th className="py-2 px-4">Descrição do Serviço / Material</th>
+                        <th className="py-2 px-3 text-center w-16">Unid.</th>
+                        <th className="py-2 px-3 text-center w-16">Qtd.</th>
+                        <th className="py-2 px-4 text-right w-32">Valor Unit.</th>
+                        <th className="py-2 px-4 text-right w-36">Total</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-200">
+                      {previewProposal.items.map((it, idx) => (
+                        <tr key={it.id} className="hover:bg-zinc-50">
+                          <td className="py-2.5 px-3 text-center font-mono font-semibold text-zinc-500">{idx + 1}</td>
+                          <td className="py-2.5 px-4 font-medium text-zinc-950">{it.description}</td>
+                          <td className="py-2.5 px-3 text-center font-mono text-zinc-600">{it.unit}</td>
+                          <td className="py-2.5 px-3 text-center font-mono text-zinc-950 font-bold">{it.quantity}</td>
+                          <td className="py-2.5 px-4 text-right font-mono text-zinc-700">R$ {it.unitPrice.toLocaleString('pt-BR')}</td>
+                          <td className="py-2.5 px-4 text-right font-mono font-black text-zinc-950">R$ {it.totalPrice.toLocaleString('pt-BR')}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Total Box */}
+                <div className="p-4 rounded-xl bg-zinc-900 text-white font-mono space-y-1 shadow-sm">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-black uppercase tracking-wider">TOTAL GERAL DA PROPOSTA COMERCIAL:</span>
+                    <span className="text-xl font-black text-emerald-400">R$ {previewProposal.totalValue.toLocaleString('pt-BR')}</span>
+                  </div>
+                  <div className="text-xs text-zinc-300 font-sans italic pt-1 border-t border-zinc-800">
+                    Valor Por Extenso: <strong className="text-amber-300">{previewProposal.totalValueInWords}</strong>
+                  </div>
+                </div>
+
+                {/* Commercial Conditions & Warranties */}
+                <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 space-y-2 text-xs">
+                  <h3 className="text-xs font-bold text-zinc-900 uppercase font-mono tracking-wider border-b border-zinc-200 pb-1">
+                    2. CONDIÇÕES COMERCIAIS E GARANTIAS
+                  </h3>
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-zinc-800 text-xs">
+                    <div>• Prazo de Execução: <strong>{previewProposal.conditions?.executionTerm}</strong></div>
+                    <div>• Prazo de Entrega: <strong>{previewProposal.conditions?.deliveryTerm}</strong></div>
+                    <div>• Forma de Pagamento: <strong>{previewProposal.conditions?.paymentMethod}</strong></div>
+                    <div>• Garantia Técnica: <strong>{previewProposal.conditions?.warranty}</strong></div>
+                    <div className="col-span-2">• Responsabilidades da Contratada: {previewProposal.conditions?.companyResponsibilities}</div>
+                    <div className="col-span-2">• Responsabilidades do Contratante: {previewProposal.conditions?.clientResponsibilities}</div>
+                  </div>
+                </div>
+
+                {/* Notes (if any) */}
+                {previewProposal.notes && (
+                  <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-zinc-800">
+                    <strong className="font-mono text-amber-900 block uppercase text-[10px] mb-0.5">Observações Finais:</strong>
+                    <p className="leading-relaxed">{previewProposal.notes}</p>
+                  </div>
+                )}
               </div>
 
-              {/* Total Box (Clean borderless right aligned summary) */}
-              <div className="pt-2 border-t-2 border-zinc-950 font-mono space-y-0.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-black text-zinc-950 uppercase text-xs">TOTAL GERAL DA PROPOSTA COMERCIAL:</span>
-                  <span className="text-base font-black text-zinc-950">R$ {previewProposal.totalValue.toLocaleString('pt-BR')}</span>
-                </div>
-                <div className="text-[10px] text-zinc-700 font-sans italic pt-0.5">
-                  Valor Por Extenso: <strong className="text-zinc-950">{previewProposal.totalValueInWords}</strong>
-                </div>
-              </div>
+              {/* BOTTOM / FOOTER & SIGNATURES CONTAINER (Anchored to Page Bottom) */}
+              <div className="space-y-6 pt-6 mt-auto border-t border-zinc-200">
+                {/* Signatures & Acceptance */}
+                <div className="grid grid-cols-2 gap-12 text-center text-xs pt-4">
+                  <div>
+                    <div className="border-b border-zinc-950 mb-1.5 pb-8"></div>
+                    <span className="font-bold text-zinc-950 block">{companyConfig.razaoSocial}</span>
+                    <span className="text-[10px] text-zinc-500 font-mono">Emitente da Proposta</span>
+                  </div>
 
-              {/* Commercial Conditions & Warranties */}
-              <div className="space-y-1 text-[10px] pt-1">
-                <h3 className="text-[10.5px] font-bold text-zinc-900 uppercase font-mono tracking-wider border-b border-zinc-300 pb-1">
-                  2. CONDIÇÕES COMERCIAIS E GARANTIAS
-                </h3>
-                <div className="grid grid-cols-2 gap-x-6 gap-y-0.5 text-[10px] text-zinc-800">
-                  <div>• Prazo de Execução: <strong>{previewProposal.conditions?.executionTerm}</strong></div>
-                  <div>• Prazo de Entrega: <strong>{previewProposal.conditions?.deliveryTerm}</strong></div>
-                  <div>• Forma de Pagamento: <strong>{previewProposal.conditions?.paymentMethod}</strong></div>
-                  <div>• Garantia Técnica: <strong>{previewProposal.conditions?.warranty}</strong></div>
-                  <div className="col-span-2">• Responsabilidades da Contratada: {previewProposal.conditions?.companyResponsibilities}</div>
-                  <div className="col-span-2">• Responsabilidades do Contratante: {previewProposal.conditions?.clientResponsibilities}</div>
-                </div>
-              </div>
-
-              {/* Signatures & Acceptance */}
-              <div className="pt-4 grid grid-cols-2 gap-10 text-center text-[10px]">
-                <div>
-                  <div className="border-b border-zinc-900 mb-1 pb-5"></div>
-                  <span className="font-bold text-zinc-950 block">{companyConfig.razaoSocial}</span>
-                  <span className="text-[9px] text-zinc-500 font-mono">Emitente da Proposta</span>
+                  <div>
+                    <div className="border-b border-zinc-950 mb-1.5 pb-8"></div>
+                    <span className="font-bold text-zinc-950 block">{previewProposal.clientName}</span>
+                    <span className="text-[10px] text-zinc-500 font-mono">De Acordo / Aceite do Cliente</span>
+                  </div>
                 </div>
 
-                <div>
-                  <div className="border-b border-zinc-900 mb-1 pb-5"></div>
-                  <span className="font-bold text-zinc-950 block">{previewProposal.clientName}</span>
-                  <span className="text-[9px] text-zinc-500 font-mono">De Acordo / Aceite do Cliente</span>
+                {/* PDF Footer Tagline */}
+                <div className="text-center text-[9.5px] text-zinc-500 font-mono space-y-0.5 pt-2 border-t border-zinc-200">
+                  <p className="font-bold text-zinc-700">ProObras ERP — Sistema Integrado de Gestão de Obras de Energia Elétrica e Distribuição</p>
+                  <p>Agradecemos pela confiança. Este documento possui validade legal de {previewProposal.conditions?.validityDays || 15} dias corridos.</p>
                 </div>
-              </div>
-
-              {/* PDF Footer */}
-              <div className="pt-2 border-t border-zinc-200 text-center text-[8.5px] text-zinc-500 font-mono space-y-0.5">
-                <p>ProObras ERP — Sistema de Gestão de Obras de Energia Elétrica e Distribuição</p>
-                <p>Agradecemos pela confiança. Este documento possui validade de {previewProposal.conditions?.validityDays || 15} dias corridos.</p>
               </div>
             </div>
           </div>
         </div>
       )}
+
 
       {/* MODAL: HISTÓRICO DE EDIÇÕES E VERSÕES */}
       {historyProposal && (
