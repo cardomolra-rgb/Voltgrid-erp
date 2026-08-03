@@ -7,14 +7,11 @@ import {
   EyeOff,
   ShieldCheck,
   ArrowRight,
-  UserCheck,
   AlertCircle,
-  KeyRound,
   Sparkles,
-  Building2,
-  CheckCircle2,
 } from 'lucide-react';
 import { SystemUserItem } from '../types';
+
 
 interface AuthScreenProps {
   systemUsers: SystemUserItem[];
@@ -27,11 +24,12 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
   onLoginSuccess,
   companyName = 'ProObras ERP',
 }) => {
-  const [emailOrUser, setEmailOrUser] = useState('admin@proobras.com.br');
-  const [password, setPassword] = useState('admin123');
+  const [emailOrUser, setEmailOrUser] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
 
   // Default fallback user if systemUsers array happens to be empty
   const defaultAdmin: SystemUserItem = {
@@ -162,30 +160,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
               </p>
             </div>
 
-            {/* Default Credentials Callout Box (Super Clear User Info) */}
-            <div className="p-4 rounded-2xl bg-blue-950/40 border border-blue-500/30 space-y-2.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2 text-blue-400 font-bold text-xs font-mono">
-                  <KeyRound className="w-4 h-4 text-blue-400" />
-                  <span>Credenciais Padrão de Demonstração</span>
-                </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-semibold">
-                  Padrão
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-1">
-                <div className="p-2 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-0.5">
-                  <span className="text-[10px] text-zinc-500 uppercase block">E-mail / Usuário</span>
-                  <span className="text-blue-300 font-bold select-all">admin@proobras.com.br</span>
-                </div>
-                <div className="p-2 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-0.5">
-                  <span className="text-[10px] text-zinc-500 uppercase block">Senha Padrão</span>
-                  <span className="text-emerald-400 font-bold select-all">admin123</span>
-                </div>
-              </div>
-            </div>
-
             {/* Error Message Banner */}
             {errorMessage && (
               <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold flex items-center space-x-2 animate-shake">
@@ -208,7 +182,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                     required
                     value={emailOrUser}
                     onChange={(e) => setEmailOrUser(e.target.value)}
-                    placeholder="ex: admin@proobras.com.br"
+                    placeholder="ex: usuario@proobras.com.br"
                     className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs font-medium focus:outline-none focus:border-blue-500 transition-colors"
                   />
                 </div>
@@ -263,50 +237,10 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({
                 )}
               </button>
             </form>
-
-            {/* Quick 1-Click Login Button */}
-            <div className="pt-2 border-t border-zinc-800/80 space-y-2">
-              <button
-                type="button"
-                onClick={handleQuickAdminLogin}
-                className="w-full py-3 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-blue-400 font-bold text-xs flex items-center justify-center space-x-2 border border-zinc-700/80 transition-all cursor-pointer"
-              >
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>Entrar como Administrador (1-Clique)</span>
-              </button>
-            </div>
           </div>
-
-          {/* Registered Users Quick Switcher (If multiple users exist) */}
-          {usersList.length > 1 && (
-            <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-4 space-y-2">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest font-mono block">
-                Outros Perfis Disponíveis para Teste:
-              </span>
-              <div className="grid grid-cols-1 gap-1.5">
-                {usersList.map((u) => (
-                  <button
-                    key={u.id}
-                    onClick={() => {
-                      setEmailOrUser(u.email);
-                      setPassword(u.password || 'admin123');
-                    }}
-                    className="w-full text-left p-2.5 rounded-xl bg-zinc-950/60 border border-zinc-800/60 hover:border-blue-500/40 text-xs flex items-center justify-between transition-all"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <UserCheck className="w-3.5 h-3.5 text-blue-400" />
-                      <span className="font-bold text-zinc-200">{u.name}</span>
-                    </div>
-                    <span className="text-[10px] font-mono text-zinc-400 px-2 py-0.5 bg-zinc-800 rounded-md">
-                      {u.role}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </main>
+
 
       {/* Footer info */}
       <footer className="w-full max-w-7xl mx-auto px-6 py-4 text-center text-zinc-500 text-[11px] font-mono z-10">
