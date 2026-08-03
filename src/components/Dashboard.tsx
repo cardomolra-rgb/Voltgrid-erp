@@ -79,7 +79,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div>
           <h1 className="text-base font-semibold text-zinc-100 flex items-center space-x-2 font-mono">
             <Building2 className="w-5 h-5 text-blue-500" />
-            <span>Painel de Controle Operacional & Financeiro VoltGrid</span>
+            <span>Painel de Controle Operacional & Financeiro ProObras</span>
           </h1>
           <p className="text-xs text-zinc-400 mt-1">
             Resumo em tempo real de contratos ativas, medições pendentes, custos de obras e frotas.

@@ -1,5 +1,5 @@
 /**
- * Types for VoltGrid ERP - Gestão de Obras de Energia Elétrica
+ * Types for ProObras ERP - Gestão de Obras de Energia Elétrica
  */
 
 export type UserRole =

@@ -11,9 +11,11 @@ import {
   ShieldCheck,
   Building2,
   FolderCheck,
+  LayoutDashboard,
 } from 'lucide-react';
 
 export type ActiveTab =
+  | 'painel'
   | 'obras'
   | 'frota'
   | 'rh'
@@ -55,6 +57,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, allowe
   };
 
   const GROUPS: Array<{ title: string; items: Array<{ id: string; label: string; icon: React.ReactNode; badge?: number; badgeColor?: string }> }> = [
+    {
+      title: 'INÍCIO',
+      items: [
+        {
+          id: 'painel',
+          label: 'Painel Geral',
+          icon: <LayoutDashboard className="w-4 h-4 text-blue-400" />,
+        },
+      ],
+    },
     {
       title: 'OPERACIONAL',
       items: [

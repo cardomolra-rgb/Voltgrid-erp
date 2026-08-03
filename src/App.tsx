@@ -68,7 +68,8 @@ import {
 
 export default function App() {
   // Navigation & User State
-  const [activeTab, setActiveTab] = useState<string>('obras');
+  const [activeTab, setActiveTab] = useState<string>('painel');
+  const [newObraSignal, setNewObraSignal] = useState(0);
   const [selectedObraId, setSelectedObraId] = useState<string>('');
   const [role, setRole] = useState<any>('Diretor');
   const [darkMode, setDarkMode] = useState<boolean>(true);
@@ -714,6 +715,11 @@ export default function App() {
     setActiveTab('obras');
   };
 
+  const handleOpenNewObraFromDashboard = () => {
+    setNewObraSignal((n) => n + 1);
+    setActiveTab('obras');
+  };
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 font-sans selection:bg-blue-500 selection:text-white transition-colors duration-200">
       {/* Header */}
@@ -749,6 +755,20 @@ export default function App() {
 
         {/* Content Area */}
         <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 print:p-0 print:m-0 print:max-w-none">
+          {activeTab === 'painel' && (
+            <Dashboard
+              obras={obras}
+              financials={financials}
+              inventory={inventory}
+              vehicles={vehicles}
+              employees={employees}
+              expenses={expenses}
+              onNavigateToObra={handleNavigateToObra}
+              onOpenNewObra={handleOpenNewObraFromDashboard}
+              onNavigateToTab={setActiveTab}
+            />
+          )}
+
           {activeTab === 'obras' && (
             <ObrasModule
               obras={obras}
@@ -777,6 +797,7 @@ export default function App() {
               onDeleteExpense={handleDeleteExpense}
               onAddRDO={(rdo) => setRdos((prev) => [rdo, ...prev])}
               selectedObraIdFromParent={selectedObraId}
+              openNewModalSignal={newObraSignal}
             />
           )}
 

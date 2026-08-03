@@ -49,6 +49,7 @@ import {
   maskCpfCnpj,
   maskPhone,
 } from '../types';
+import { Tabs } from './ui/Tabs';
 
 // CPF & CNPJ Validation Helper Function (Mathematical Check Digits)
 const validateCpfCnpj = (value: string): { isValid: boolean; type: 'CPF' | 'CNPJ' | 'INV' | 'EMPTY' } => {
@@ -226,7 +227,6 @@ export const CRMModule: React.FC<CRMModuleProps> = ({
   const [editingProposal, setEditingProposal] = useState<CommercialProposal | null>(null);
   const [previewProposal, setPreviewProposal] = useState<CommercialProposal | null>(null);
   const [historyProposal, setHistoryProposal] = useState<CommercialProposal | null>(null);
-  const [emailModalProposal, setEmailModalProposal] = useState<CommercialProposal | null>(null);
 
   // Proposal Form State
   const [formClientId, setFormClientId] = useState('');
@@ -764,37 +764,14 @@ Atenciosamente,
       )}
 
       {/* Navigation Sub-Tabs */}
-      <div className="flex items-center space-x-2 border-b border-zinc-800 pb-2 text-xs font-sans">
-        <button
-          onClick={() => setActiveTab('propostas')}
-          className={`px-4 py-2 rounded-xl font-semibold transition-all flex items-center space-x-2 cursor-pointer ${
-            activeTab === 'propostas'
-              ? 'bg-amber-500 text-zinc-950 font-bold shadow-md shadow-amber-950 scale-102'
-              : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-zinc-200'
-          }`}
-        >
-          <FileText className="w-4 h-4" />
-          <span>Propostas Comerciais</span>
-          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-zinc-950 text-amber-400">
-            {proposalList.length}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('clientes')}
-          className={`px-4 py-2 rounded-xl font-semibold transition-all flex items-center space-x-2 cursor-pointer ${
-            activeTab === 'clientes'
-              ? 'bg-amber-500 text-zinc-950 font-bold shadow-md shadow-amber-950 scale-102'
-              : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-zinc-200'
-          }`}
-        >
-          <Users className="w-4 h-4" />
-          <span>Gestão de Clientes & CRM</span>
-          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-zinc-800 text-zinc-400">
-            {clients.length}
-          </span>
-        </button>
-      </div>
+      <Tabs
+        items={[
+          { id: 'propostas', label: 'Propostas Comerciais', icon: <FileText className="w-4 h-4" />, badge: proposalList.length },
+          { id: 'clientes', label: 'Gestão de Clientes & CRM', icon: <Users className="w-4 h-4" />, badge: clients.length },
+        ]}
+        activeId={activeTab}
+        onChange={(id) => setActiveTab(id as 'propostas' | 'clientes')}
+      />
 
       {/* TAB 1: PROPOSTAS COMERCIAIS */}
       {activeTab === 'propostas' && (

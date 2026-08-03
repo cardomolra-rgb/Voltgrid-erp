@@ -42,6 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectUser,
 }) => {
   const [showNotificationsPopover, setShowNotificationsPopover] = useState(false);
+  const [showRoleSwitcher, setShowRoleSwitcher] = useState(false);
   const activeRole = activeUser ? activeUser.role : role || currentRole || 'Diretor';
   const activeName = activeUser ? activeUser.name : 'Administrador Master';
 
@@ -240,8 +241,12 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         {/* Registered User Profile Selector Dropdown */}
-        <div className="relative group">
-          <div className={`flex items-center space-x-2 pl-2 border-l cursor-pointer ${darkMode ? 'border-zinc-800' : 'border-zinc-200'}`}>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowRoleSwitcher(!showRoleSwitcher)}
+            className={`flex items-center space-x-2 pl-2 border-l cursor-pointer ${darkMode ? 'border-zinc-800' : 'border-zinc-200'}`}
+          >
             <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold text-xs">
               <UserCheck className="w-4 h-4" />
             </div>
@@ -252,11 +257,12 @@ export const Header: React.FC<HeaderProps> = ({
               <p className="text-[10px] text-indigo-500 font-mono font-semibold">{activeRole}</p>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-zinc-500 hidden xl:block" />
-          </div>
+          </button>
 
           {/* Role / Registered Users Dropdown */}
+          {showRoleSwitcher && (
           <div
-            className={`absolute right-0 top-full mt-2 w-64 rounded-xl border shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 p-2 z-50 ${
+            className={`absolute right-0 top-full mt-2 w-64 rounded-xl border shadow-2xl transition-all duration-200 p-2 z-50 ${
               darkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-900'
             }`}
           >
@@ -286,6 +292,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => {
                         onRoleChange(u.role);
                         if (onSelectUser) onSelectUser(u);
+                        setShowRoleSwitcher(false);
                       }}
                       className={`w-full text-left p-2 rounded-lg text-xs transition-colors flex items-center justify-between border cursor-pointer ${
                         isSelected
@@ -311,6 +318,7 @@ export const Header: React.FC<HeaderProps> = ({
               )}
             </div>
           </div>
+          )}
         </div>
       </div>
     </header>

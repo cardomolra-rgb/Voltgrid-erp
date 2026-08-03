@@ -11,6 +11,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { Obra, Client, FinancialAccount, FuelLog, ObraExpense, Employee, EmployeePaymentLog, SystemCompanyConfig } from '../types';
+import { Tabs } from './ui/Tabs';
 
 interface ReportsModuleProps {
   obras: Obra[];
@@ -277,26 +278,18 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
       </div>
 
       {/* Report Selector Tabs */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 font-mono">
-        {[
+      <Tabs
+        variant="chip"
+        items={[
           { id: 'dre_executivo', label: '📊 DRE Executivo Mensal' },
           { id: 'lucro_obra', label: '🏗️ Lucratividade por Obra' },
           { id: 'balanco_funcionario', label: '👷 Balanço por Funcionário' },
           { id: 'custo_frota', label: '⛽ Consumo de Frota & KM' },
-        ].map((rep) => (
-          <button
-            key={rep.id}
-            onClick={() => setSelectedReportType(rep.id as any)}
-            className={`p-3.5 rounded-xl border text-center text-xs font-bold transition-all cursor-pointer ${
-              selectedReportType === rep.id
-                ? 'bg-amber-500 text-zinc-950 border-amber-500 shadow-md font-extrabold'
-                : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-zinc-200 hover:border-zinc-700'
-            }`}
-          >
-            {rep.label}
-          </button>
-        ))}
-      </div>
+        ]}
+        activeId={selectedReportType}
+        onChange={(id) => setSelectedReportType(id as any)}
+        className="font-mono"
+      />
 
       {/* Report Details View */}
       <div className="p-6 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-sm space-y-4 font-sans">

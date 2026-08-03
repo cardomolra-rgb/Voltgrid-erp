@@ -25,6 +25,7 @@ import {
   maskCpfCnpj,
   maskPhone,
 } from '../types';
+import { Tabs } from './ui/Tabs';
 
 interface DocumentosGeradorModuleProps {
   clients: Client[];
@@ -58,7 +59,7 @@ export const DocumentosGeradorModule: React.FC<DocumentosGeradorModuleProps> = (
 
   // Approval Modal State
   const [showApprovalModal, setShowApprovalModal] = useState(false);
-  const [approvalResponsible, setApprovalResponsible] = useState('Diretoria Comercial VoltGrid');
+  const [approvalResponsible, setApprovalResponsible] = useState('Diretoria Comercial ProObras');
   const [approvalStatus, setApprovalStatus] = useState<'Aprovado' | 'Assinado' | 'Em Execução'>('Aprovado');
   const [approvalSuccessMessage, setApprovalSuccessMessage] = useState<string | null>(null);
 
@@ -257,7 +258,7 @@ export const DocumentosGeradorModule: React.FC<DocumentosGeradorModuleProps> = (
       contractValue: Number((valorContrato || '').replace(/\D/g, '')) || selectedObra?.totalValue || 150000,
       paymentMethod: formaPagamentoTipo,
       approvedAt: new Date().toISOString().split('T')[0],
-      approvedBy: approvalResponsible || 'Diretoria Comercial VoltGrid',
+      approvedBy: approvalResponsible || 'Diretoria Comercial ProObras',
       status: approvalStatus,
       documentType: docType,
       fileName: `Contrato_${(selectedClient?.name || 'Cliente').replace(/\s+/g, '_')}_${contractNumber}.pdf`,
@@ -315,31 +316,24 @@ export const DocumentosGeradorModule: React.FC<DocumentosGeradorModuleProps> = (
       `}</style>
 
       {/* Main Module Navigation Subtabs (Hidden when printing) */}
-      <div className="flex items-center space-x-3 border-b border-zinc-800 pb-3 font-mono text-xs no-print">
-        <button
-          onClick={() => setActiveMainTab('gerador')}
-          className={`px-4 py-2 rounded-xl font-bold flex items-center space-x-2 transition-all cursor-pointer ${
-            activeMainTab === 'gerador'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-zinc-200'
-          }`}
-        >
-          <FileText className="w-4 h-4" />
-          <span>📄 Gerador & Minuta de Contrato</span>
-        </button>
-
-        <button
-          onClick={() => setActiveMainTab('historico_aprovados')}
-          className={`px-4 py-2 rounded-xl font-bold flex items-center space-x-2 transition-all cursor-pointer ${
-            activeMainTab === 'historico_aprovados'
-              ? 'bg-emerald-600 text-white shadow-md'
-              : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-zinc-200'
-          }`}
-        >
-          <History className="w-4 h-4" />
-          <span>📜 Histórico de Contratos Aprovados ({approvedContracts.length})</span>
-        </button>
-      </div>
+      <Tabs
+        className="no-print"
+        items={[
+          {
+            id: 'gerador',
+            label: '📄 Gerador & Minuta de Contrato',
+            icon: <FileText className="w-4 h-4" />,
+          },
+          {
+            id: 'historico_aprovados',
+            label: '📜 Histórico de Contratos Aprovados',
+            icon: <History className="w-4 h-4" />,
+            badge: approvedContracts.length,
+          },
+        ]}
+        activeId={activeMainTab}
+        onChange={(id) => setActiveMainTab(id as 'gerador' | 'historico_aprovados')}
+      />
 
       {/* Notification Toast Banner */}
       {approvalSuccessMessage && (
@@ -1358,7 +1352,7 @@ export const DocumentosGeradorModule: React.FC<DocumentosGeradorModuleProps> = (
 
       {/* APPROVAL & HOMOLOGATION MODAL */}
       {showApprovalModal && (
-        <div className="fixed inset-0 z-[60] bg-zinc-950/80 backdrop-blur-sm flex items-center justify-center p-4 no-print">
+        <div className="fixed inset-0 z-50 bg-zinc-950/80 backdrop-blur-sm flex items-center justify-center p-4 no-print">
           <div className="w-full max-w-xl rounded-2xl bg-zinc-900 border border-zinc-800 shadow-2xl p-6 space-y-4 font-sans text-xs">
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
               <div className="flex items-center space-x-2 text-emerald-400 font-mono">

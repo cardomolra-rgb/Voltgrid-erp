@@ -72,7 +72,7 @@ export const StockPurchasesModule: React.FC<StockPurchasesModuleProps> = ({
     const newPo: PurchaseOrder = {
       id: `PED-2026-09${purchases.length + 1}`,
       number: `PO-882${purchases.length + 3}`,
-      requester: 'Depto de Compras VoltGrid',
+      requester: 'Depto de Compras ProObras',
       status: 'Cotação',
       supplierName: poSupplier,
       totalValue: poVal,

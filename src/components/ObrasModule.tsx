@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import JSZip from 'jszip';
+import { Tabs } from './ui/Tabs';
 import {
   HardHat,
   Search,
@@ -81,6 +82,7 @@ interface ObrasModuleProps {
   onDeleteExpense?: (expenseId: string) => void;
   onAddRDO: (rdo: DiarioObraRDO) => void;
   selectedObraIdFromParent?: string;
+  openNewModalSignal?: number;
 }
 
 const OBRA_PHASES: ObraStatus[] = [
@@ -143,7 +145,7 @@ const DEFAULT_STAGE_CHECKLISTS: Record<
     { title: 'Instalação de Postes, Transformador e Proteções', category: 'Técnico', required: true },
   ],
   Fiscalização: [
-    { title: 'Vistoria Prévia da Engenharia Interna VoltGrid', category: 'Técnico', required: true },
+    { title: 'Vistoria Prévia da Engenharia Interna ProObras', category: 'Técnico', required: true },
     { title: 'Relatório de Conformidade Técnica Pré-Protocolo', category: 'Técnico', required: true },
     { title: 'Sanação e Resolução de Pendências da Vistoria', category: 'Técnico', required: true },
   ],
@@ -214,6 +216,7 @@ export const ObrasModule: React.FC<ObrasModuleProps> = ({
   onDeleteExpense,
   onAddRDO,
   selectedObraIdFromParent,
+  openNewModalSignal,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('TODOS');
@@ -272,6 +275,13 @@ export const ObrasModule: React.FC<ObrasModuleProps> = ({
 
   // New Obra Form State
   const [showNewModal, setShowNewModal] = useState(false);
+
+  // Open the "Nova Obra" form when triggered from outside (e.g. Dashboard button)
+  useEffect(() => {
+    if (openNewModalSignal) {
+      setShowNewModal(true);
+    }
+  }, [openNewModalSignal]);
   const [newProjectName, setNewProjectName] = useState('');
   const [newClientId, setNewClientId] = useState('');
   const [newClientCustomName, setNewClientCustomName] = useState('');
@@ -652,7 +662,7 @@ export const ObrasModule: React.FC<ObrasModuleProps> = ({
       category: newDocCategory,
       version: newDocVersion.trim() || 'v1.0',
       status: 'Válido',
-      responsible: activeObraModal.techResponsible || 'Engenharia VoltGrid',
+      responsible: activeObraModal.techResponsible || 'Engenharia ProObras',
       fileName: selectedFileName || `${newDocName.toLowerCase().replace(/\s+/g, '_')}.pdf`,
       fileSize: selectedFileSize || '1.5 MB',
       createdAt: new Date().toISOString().split('T')[0],
@@ -869,7 +879,7 @@ export const ObrasModule: React.FC<ObrasModuleProps> = ({
       const folderOutros = zip.folder('05_Outros_Documentos');
 
       const manifestContent = `================================================
-Dossie Digital de Obra Eletrica - VoltGrid ERP
+Dossie Digital de Obra Eletrica - ProObras ERP
 ================================================
 Codigo da Obra: ${obra.code}
 Projeto: ${obra.projectName}
@@ -899,7 +909,7 @@ ${docs.map((d, i) => `${i + 1}. [${d.category}] ${d.name} (${d.fileName}) - Vers
         }
 
         const sampleDocContent = `%PDF-1.5 / DWG Document Spec
-% VoltGrid ERP - Documento Homologado
+% ProObras ERP - Documento Homologado
 % ID: ${doc.id}
 % Nome: ${doc.name}
 % Categoria: ${doc.category}
@@ -1165,25 +1175,18 @@ ${docs.map((d, i) => `${i + 1}. [${d.category}] ${d.name} (${d.fileName}) - Vers
             </div>
 
             {/* Modal Navigation Tabs */}
-            <div className="flex items-center space-x-1 p-2 bg-slate-100 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 overflow-x-auto text-xs font-bold">
-              {[
-                { id: 'geral', label: 'Visão Geral & Dados' },
-                { id: 'fases', label: 'Checklist & Protocolo' },
-                { id: 'docs', label: 'Documentos' },
-                { id: 'custos', label: 'Lançador de Custos' },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setDetailTab(tab.id as any)}
-                  className={`px-3 py-2 rounded-xl whitespace-nowrap transition-all ${
-                    detailTab === tab.id
-                      ? 'bg-amber-500 text-slate-950 font-black shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+            <div className="p-2 bg-zinc-950 border-b border-zinc-800">
+              <Tabs
+                variant="chip"
+                items={[
+                  { id: 'geral', label: 'Visão Geral & Dados' },
+                  { id: 'fases', label: 'Checklist & Protocolo' },
+                  { id: 'docs', label: 'Documentos' },
+                  { id: 'custos', label: 'Lançador de Custos' },
+                ]}
+                activeId={detailTab}
+                onChange={(id) => setDetailTab(id as any)}
+              />
             </div>
 
             {/* Modal Content Area */}
@@ -1291,19 +1294,19 @@ ${docs.map((d, i) => `${i + 1}. [${d.category}] ${d.name} (${d.fileName}) - Vers
                     </div>
                   )}
 
-                  {/* Stage Pipeline Tabs Bar */}
-                  <div className="space-y-2">
+                  {/* Stage Pipeline Rail */}
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider font-mono flex items-center space-x-2">
                         <Layers className="w-4 h-4 text-blue-400" />
                         <span>Pipeline de Etapas da Obra</span>
                       </h3>
                       <span className="text-[11px] font-mono text-zinc-400">
-                        Etapa Atual: <strong className="text-blue-400 font-bold">{activeObraModal.status}</strong> ({activeObraModal.percentageExecuted}% Concluído)
+                        Etapa Atual: <strong className="text-amber-400 font-bold">{activeObraModal.status}</strong> ({activeObraModal.percentageExecuted}% Concluído)
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                    <div className="flex items-start overflow-x-auto pb-2 -mx-1 px-1">
                       {OBRA_PHASES.map((phase, pIdx) => {
                         const currentStatusIdx = OBRA_PHASES.indexOf(activeObraModal.status);
                         const isCompleted = pIdx < currentStatusIdx;
@@ -1311,37 +1314,59 @@ ${docs.map((d, i) => `${i + 1}. [${d.category}] ${d.name} (${d.fileName}) - Vers
                         const isSelectedStage = phase === selectedStageInChecklist;
 
                         return (
-                          <button
-                            key={phase}
-                            onClick={() => setSelectedStageInChecklist(phase)}
-                            className={`p-3 rounded-xl border text-left text-xs font-medium transition-all relative overflow-hidden flex flex-col justify-between space-y-1.5 ${
-                              isSelectedStage
-                                ? 'bg-blue-600/20 border-blue-500 text-white shadow-md ring-2 ring-blue-500/50'
-                                : isCurrentStatus
-                                ? 'bg-amber-500/10 border-amber-500/50 text-amber-300 hover:border-amber-500'
-                                : isCompleted
-                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:border-emerald-500/60'
-                                : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:border-zinc-700'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between w-full">
-                              <span className="font-mono text-[10px] opacity-60">0{pIdx + 1}</span>
-                              {isCompleted && (
-                                <span className="px-1.5 py-0.2 text-[9px] font-bold rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                                  ✓ Concluída
-                                </span>
-                              )}
-                              {isCurrentStatus && (
-                                <span className="px-1.5 py-0.2 text-[9px] font-bold rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse">
-                                  ● Em Andamento
-                                </span>
-                              )}
-                              {!isCompleted && !isCurrentStatus && (
-                                <span className="text-[9px] text-zinc-500">○ Pendente</span>
-                              )}
-                            </div>
-                            <span className="font-semibold text-xs truncate block">{phase}</span>
-                          </button>
+                          <React.Fragment key={phase}>
+                            {pIdx > 0 && (
+                              <div
+                                className={`h-0.5 w-6 sm:w-9 mt-4 shrink-0 rounded-full transition-colors duration-500 ${
+                                  pIdx <= currentStatusIdx
+                                    ? 'bg-gradient-to-r from-emerald-500 to-amber-400'
+                                    : 'bg-zinc-800'
+                                }`}
+                              />
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setSelectedStageInChecklist(phase)}
+                              title={phase}
+                              className="flex flex-col items-center shrink-0 group cursor-pointer focus:outline-none"
+                            >
+                              <span
+                                className={`relative w-8 h-8 rounded-full border-2 flex items-center justify-center text-[10px] font-bold font-mono transition-all duration-300 ${
+                                  isSelectedStage
+                                    ? 'border-blue-400 ring-4 ring-blue-500/25 scale-110'
+                                    : isCurrentStatus
+                                    ? 'border-amber-400'
+                                    : isCompleted
+                                    ? 'border-emerald-500'
+                                    : 'border-zinc-700 group-hover:border-zinc-500'
+                                } ${
+                                  isCompleted
+                                    ? 'bg-emerald-500/15 text-emerald-400'
+                                    : isCurrentStatus
+                                    ? 'bg-amber-500/15 text-amber-300'
+                                    : 'bg-zinc-950 text-zinc-500 group-hover:text-zinc-300'
+                                }`}
+                              >
+                                {isCompleted ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : pIdx + 1}
+                                {isCurrentStatus && (
+                                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse motion-reduce:animate-none" />
+                                )}
+                              </span>
+                              <span
+                                className={`mt-1.5 text-[10px] font-semibold text-center leading-tight w-[76px] truncate transition-colors ${
+                                  isSelectedStage
+                                    ? 'text-white'
+                                    : isCurrentStatus
+                                    ? 'text-amber-300'
+                                    : isCompleted
+                                    ? 'text-emerald-400'
+                                    : 'text-zinc-500 group-hover:text-zinc-300'
+                                }`}
+                              >
+                                {phase}
+                              </span>
+                            </button>
+                          </React.Fragment>
                         );
                       })}
                     </div>
@@ -1357,9 +1382,13 @@ ${docs.map((d, i) => `${i + 1}. [${d.category}] ${d.name} (${d.fileName}) - Vers
                     const currentStatusIdx = OBRA_PHASES.indexOf(activeObraModal.status);
                     const stageIdx = OBRA_PHASES.indexOf(selectedStageInChecklist);
                     const isStageCompleted = stageIdx < currentStatusIdx;
+                    const isFutureStage = stageIdx > currentStatusIdx;
 
                     return (
-                      <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-6">
+                      <div
+                        key={selectedStageInChecklist}
+                        className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-6"
+                      >
                         {/* Selected Stage Header & Confirmation Button */}
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800 pb-4">
                           <div>
@@ -1385,14 +1414,25 @@ ${docs.map((d, i) => `${i + 1}. [${d.category}] ${d.name} (${d.fileName}) - Vers
                             </p>
                           </div>
 
-                          <button
-                            type="button"
-                            onClick={() => handleConfirmStageCompletion(selectedStageInChecklist)}
-                            className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-950 transition-all flex items-center space-x-2 self-start md:self-auto cursor-pointer"
-                          >
-                            <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
-                            <span>Confirmar Conclusão da Etapa ({selectedStageInChecklist})</span>
-                          </button>
+                          {stageIdx === currentStatusIdx ? (
+                            <button
+                              type="button"
+                              onClick={() => handleConfirmStageCompletion(selectedStageInChecklist)}
+                              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-950 transition-all flex items-center space-x-2 self-start md:self-auto cursor-pointer"
+                            >
+                              <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+                              <span>Confirmar Conclusão da Etapa ({selectedStageInChecklist})</span>
+                            </button>
+                          ) : isStageCompleted ? (
+                            <span className="px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold text-xs flex items-center space-x-2 self-start md:self-auto">
+                              <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+                              <span>Etapa já concluída</span>
+                            </span>
+                          ) : (
+                            <span className="px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-500 font-semibold text-xs flex items-center space-x-2 self-start md:self-auto">
+                              <span>Conclua &ldquo;{activeObraModal.status}&rdquo; para liberar esta etapa</span>
+                            </span>
+                          )}
                         </div>
 
                         {/* Two Columns: Checklist & File Attachments */}

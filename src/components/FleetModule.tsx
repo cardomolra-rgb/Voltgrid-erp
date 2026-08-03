@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Truck, Fuel, Plus, Edit, Trash2, Gauge, Wrench, ShieldCheck, DollarSign, X } from 'lucide-react';
 import { Vehicle, FuelLog, Obra } from '../types';
+import { Tabs } from './ui/Tabs';
+import { ConfirmDialog } from './ui/Modal';
 
 interface FleetModuleProps {
   vehicles: Vehicle[];
@@ -29,6 +31,8 @@ export const FleetModule: React.FC<FleetModuleProps> = ({
   const [showFuelModal, setShowFuelModal] = useState(false);
   const [showVehicleModal, setShowVehicleModal] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  const [deletingVehicleId, setDeletingVehicleId] = useState<string | null>(null);
+  const [deletingFuelLogId, setDeletingFuelLogId] = useState<string | null>(null);
 
   // Form State for Vehicle Registration/Edit
   const [vehModel, setVehModel] = useState('');
@@ -85,11 +89,14 @@ export const FleetModule: React.FC<FleetModuleProps> = ({
   };
 
   const handleDeleteVehicleClick = (vehId: string) => {
-    if (confirm('Tem certeza de que deseja excluir este veículo da frota?')) {
-      if (onDeleteVehicle) {
-        onDeleteVehicle(vehId);
-      }
+    setDeletingVehicleId(vehId);
+  };
+
+  const confirmDeleteVehicle = () => {
+    if (deletingVehicleId && onDeleteVehicle) {
+      onDeleteVehicle(deletingVehicleId);
     }
+    setDeletingVehicleId(null);
   };
 
   const handleOpenAddFuelModal = () => {
@@ -121,11 +128,14 @@ export const FleetModule: React.FC<FleetModuleProps> = ({
   };
 
   const handleDeleteFuelLogClick = (logId: string) => {
-    if (confirm('Tem certeza de que deseja excluir este registro de abastecimento? O lançamento correspondente no Contas a Pagar do Financeiro também será removido.')) {
-      if (onDeleteFuelLog) {
-        onDeleteFuelLog(logId);
-      }
+    setDeletingFuelLogId(logId);
+  };
+
+  const confirmDeleteFuelLog = () => {
+    if (deletingFuelLogId && onDeleteFuelLog) {
+      onDeleteFuelLog(deletingFuelLogId);
     }
+    setDeletingFuelLogId(null);
   };
 
   const handleSaveVehicle = (e: React.FormEvent) => {
@@ -262,29 +272,14 @@ export const FleetModule: React.FC<FleetModuleProps> = ({
       </div>
 
       {/* Subtab Toggle */}
-      <div className="flex items-center space-x-2 border-b border-zinc-800 pb-2 text-xs font-bold font-mono">
-        <button
-          onClick={() => setActiveSubTab('veiculos')}
-          className={`px-4 py-2 rounded-xl transition-all ${
-            activeSubTab === 'veiculos'
-              ? 'bg-amber-500 text-zinc-950 font-black'
-              : 'text-zinc-400 hover:bg-zinc-800'
-          }`}
-        >
-          Veículos & Equipamentos ({vehicles.length})
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab('combustivel')}
-          className={`px-4 py-2 rounded-xl transition-all ${
-            activeSubTab === 'combustivel'
-              ? 'bg-amber-500 text-zinc-950 font-black'
-              : 'text-zinc-400 hover:bg-zinc-800'
-          }`}
-        >
-          Histórico de Abastecimentos ({fuelLogs.length})
-        </button>
-      </div>
+      <Tabs
+        items={[
+          { id: 'veiculos', label: 'Veículos & Equipamentos', badge: vehicles.length },
+          { id: 'combustivel', label: 'Histórico de Abastecimentos', badge: fuelLogs.length },
+        ]}
+        activeId={activeSubTab}
+        onChange={(id) => setActiveSubTab(id as 'veiculos' | 'combustivel')}
+      />
 
       {/* SUBTAB 1: VEICULOS */}
       {activeSubTab === 'veiculos' && (
@@ -744,6 +739,26 @@ export const FleetModule: React.FC<FleetModuleProps> = ({
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={deletingVehicleId !== null}
+        title="Excluir veículo"
+        message="Tem certeza de que deseja excluir este veículo da frota? Esta ação não poderá ser desfeita."
+        tone="danger"
+        confirmLabel="Excluir"
+        onConfirm={confirmDeleteVehicle}
+        onCancel={() => setDeletingVehicleId(null)}
+      />
+
+      <ConfirmDialog
+        open={deletingFuelLogId !== null}
+        title="Excluir abastecimento"
+        message="Tem certeza de que deseja excluir este registro de abastecimento? O lançamento correspondente no Contas a Pagar do Financeiro também será removido."
+        tone="danger"
+        confirmLabel="Excluir"
+        onConfirm={confirmDeleteFuelLog}
+        onCancel={() => setDeletingFuelLogId(null)}
+      />
     </div>
   );
 };

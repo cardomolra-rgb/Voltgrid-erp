@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { UserCheck, ShieldCheck, Award, Plus, Edit, Trash2, Search, DollarSign, X, Paperclip, FileText, Phone, MapPin, CreditCard, Building, Eye, User, Calendar, TrendingDown } from 'lucide-react';
 import { Employee, EmployeeDocument, Obra, EmployeePaymentLog } from '../types';
+import { Tabs } from './ui/Tabs';
+import { StatusPill } from './ui/StatusPill';
+import { ConfirmDialog, InlineBanner } from './ui/Modal';
 
 interface HRModuleProps {
   employees: Employee[];
@@ -70,6 +73,11 @@ export const HRModule: React.FC<HRModuleProps> = ({
   // Viewer State for attached documents
   const [viewingDoc, setViewingDoc] = useState<EmployeeDocument | null>(null);
 
+  // Confirm/alert dialogs (replacing native window.confirm/alert)
+  const [deletingPaymentLogId, setDeletingPaymentLogId] = useState<string | null>(null);
+  const [deletingEmployeeId, setDeletingEmployeeId] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
+
   const filteredEmployees = employees.filter(
     (e) =>
       e.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -124,11 +132,14 @@ export const HRModule: React.FC<HRModuleProps> = ({
   };
 
   const handleDeletePaymentLogClick = (logId: string) => {
-    if (confirm('Tem certeza de que deseja excluir este lançamento de pagamento? O título correspondente no Contas a Pagar do Financeiro (Mão de Obra) também será removido.')) {
-      if (onDeletePaymentLog) {
-        onDeletePaymentLog(logId);
-      }
+    setDeletingPaymentLogId(logId);
+  };
+
+  const confirmDeletePaymentLog = () => {
+    if (deletingPaymentLogId && onDeletePaymentLog) {
+      onDeletePaymentLog(deletingPaymentLogId);
     }
+    setDeletingPaymentLogId(null);
   };
 
   const handleSavePaymentLog = (e: React.FormEvent) => {
@@ -201,11 +212,14 @@ export const HRModule: React.FC<HRModuleProps> = ({
   };
 
   const handleDeleteEmployeeClick = (empId: string) => {
-    if (confirm('Tem certeza de que deseja excluir este colaborador da equipe?')) {
-      if (onDeleteEmployee) {
-        onDeleteEmployee(empId);
-      }
+    setDeletingEmployeeId(empId);
+  };
+
+  const confirmDeleteEmployee = () => {
+    if (deletingEmployeeId && onDeleteEmployee) {
+      onDeleteEmployee(deletingEmployeeId);
     }
+    setDeletingEmployeeId(null);
   };
 
   const handleDocFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -220,7 +234,7 @@ export const HRModule: React.FC<HRModuleProps> = ({
 
   const handleAddDocumentToList = () => {
     if (!docFileName) {
-      alert('Por favor, selecione um arquivo de documento para anexar.');
+      setValidationError('Por favor, selecione um arquivo de documento para anexar.');
       return;
     }
 
@@ -246,7 +260,7 @@ export const HRModule: React.FC<HRModuleProps> = ({
   const handleSaveEmployee = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name) {
-      alert('Por favor, preencha o nome completo do colaborador.');
+      setValidationError('Por favor, preencha o nome completo do colaborador.');
       return;
     }
 
@@ -348,31 +362,14 @@ export const HRModule: React.FC<HRModuleProps> = ({
       </div>
 
       {/* Subtab Navigation Bar */}
-      <div className="flex items-center space-x-2 border-b border-zinc-800 pb-3 font-mono">
-        <button
-          type="button"
-          onClick={() => setActiveSubTab('colaboradores')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-            activeSubTab === 'colaboradores'
-              ? 'bg-zinc-100 text-zinc-950 font-extrabold shadow-sm'
-              : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-zinc-200'
-          }`}
-        >
-          👥 Colaboradores & Equipe ({employees.length})
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveSubTab('pagamentos')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-            activeSubTab === 'pagamentos'
-              ? 'bg-emerald-500 text-zinc-950 font-extrabold shadow-sm'
-              : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-zinc-200'
-          }`}
-        >
-          💳 Histórico de Pagamentos de Diárias & Vales ({paymentLogs.length})
-        </button>
-      </div>
+      <Tabs
+        items={[
+          { id: 'colaboradores', label: '👥 Colaboradores & Equipe', badge: employees.length },
+          { id: 'pagamentos', label: '💳 Histórico de Pagamentos de Diárias & Vales', badge: paymentLogs.length },
+        ]}
+        activeId={activeSubTab}
+        onChange={(id) => setActiveSubTab(id as 'colaboradores' | 'pagamentos')}
+      />
 
       {/* SUBTAB 1: COLABORADORES & EQUIPE */}
       {activeSubTab === 'colaboradores' && (
@@ -417,9 +414,11 @@ export const HRModule: React.FC<HRModuleProps> = ({
               </div>
 
               <div className="flex items-center space-x-2">
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  {emp.status}
-                </span>
+                <StatusPill
+                  status={emp.status}
+                  toneMap={{ Ativo: 'emerald', Inativo: 'rose', 'Em Férias': 'amber' }}
+                  className="rounded-full py-1"
+                />
 
                 {/* Actions: Edit & Delete */}
                 <button
@@ -459,7 +458,7 @@ export const HRModule: React.FC<HRModuleProps> = ({
             {emp.attachedDocs && emp.attachedDocs.length > 0 && (
               <div className="space-y-1.5 p-3 rounded-xl bg-zinc-950 border border-zinc-800 text-xs">
                 <span className="text-[10px] font-bold text-zinc-400 uppercase font-mono block">
-                  Documentos Anetados ({emp.attachedDocs.length})
+                  Documentos Anexados ({emp.attachedDocs.length})
                 </span>
                 <div className="space-y-1">
                   {emp.attachedDocs.map((doc) => (
@@ -632,42 +631,19 @@ export const HRModule: React.FC<HRModuleProps> = ({
               </button>
             </div>
 
+            <InlineBanner message={validationError} tone="error" onClose={() => setValidationError(null)} />
+
             {/* Form Tabs */}
-            <div className="flex items-center space-x-2 border-b border-zinc-800 pb-2 text-xs font-bold font-mono">
-              <button
-                type="button"
-                onClick={() => setActiveFormTab('dados')}
-                className={`px-3 py-1.5 rounded-lg transition-all ${
-                  activeFormTab === 'dados'
-                    ? 'bg-blue-600 text-white font-black'
-                    : 'text-zinc-400 hover:bg-zinc-800'
-                }`}
-              >
-                1. Dados Pessoais & Função
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveFormTab('pagamento')}
-                className={`px-3 py-1.5 rounded-lg transition-all ${
-                  activeFormTab === 'pagamento'
-                    ? 'bg-blue-600 text-white font-black'
-                    : 'text-zinc-400 hover:bg-zinc-800'
-                }`}
-              >
-                2. Dados para Pagamento
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveFormTab('documentos')}
-                className={`px-3 py-1.5 rounded-lg transition-all ${
-                  activeFormTab === 'documentos'
-                    ? 'bg-blue-600 text-white font-black'
-                    : 'text-zinc-400 hover:bg-zinc-800'
-                }`}
-              >
-                3. Anexo de Documentos ({attachedDocs.length})
-              </button>
-            </div>
+            <Tabs
+              variant="chip"
+              items={[
+                { id: 'dados', label: '1. Dados Pessoais & Função' },
+                { id: 'pagamento', label: '2. Dados para Pagamento' },
+                { id: 'documentos', label: `3. Anexo de Documentos (${attachedDocs.length})` },
+              ]}
+              activeId={activeFormTab}
+              onChange={(id) => setActiveFormTab(id as 'dados' | 'pagamento' | 'documentos')}
+            />
 
             <form onSubmit={handleSaveEmployee} className="space-y-4 text-xs">
               {/* TAB 1: DADOS PESSOAIS */}
@@ -917,7 +893,7 @@ export const HRModule: React.FC<HRModuleProps> = ({
                   {/* Attached Documents List */}
                   <div className="space-y-2">
                     <span className="font-bold text-zinc-300 text-xs font-mono block">
-                      Lista de Documentos Anetados ({attachedDocs.length})
+                      Lista de Documentos Anexados ({attachedDocs.length})
                     </span>
 
                     {attachedDocs.length === 0 ? (
@@ -1186,6 +1162,26 @@ export const HRModule: React.FC<HRModuleProps> = ({
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={deletingPaymentLogId !== null}
+        title="Excluir lançamento de pagamento"
+        message="Tem certeza de que deseja excluir este lançamento de pagamento? O título correspondente no Contas a Pagar do Financeiro (Mão de Obra) também será removido."
+        tone="danger"
+        confirmLabel="Excluir"
+        onConfirm={confirmDeletePaymentLog}
+        onCancel={() => setDeletingPaymentLogId(null)}
+      />
+
+      <ConfirmDialog
+        open={deletingEmployeeId !== null}
+        title="Excluir colaborador"
+        message="Tem certeza de que deseja excluir este colaborador da equipe?"
+        tone="danger"
+        confirmLabel="Excluir"
+        onConfirm={confirmDeleteEmployee}
+        onCancel={() => setDeletingEmployeeId(null)}
+      />
     </div>
   );
 };

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Tabs } from './ui/Tabs';
+import { ConfirmDialog } from './ui/Modal';
 import {
   DollarSign,
   Plus,
@@ -48,6 +50,8 @@ export const FinancialModule: React.FC<FinancialModuleProps> = ({
   const [baixaFileName, setBaixaFileName] = useState('');
   const [baixaFileSize, setBaixaFileSize] = useState('');
   const [baixaRealUrl, setBaixaRealUrl] = useState<string>('');
+  const [pendingBaixaSemComprovante, setPendingBaixaSemComprovante] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState<FinancialAccount | null>(null);
 
   // Modal for Viewing Real Attached Comprovante in-app or new tab
   const [previewReceipt, setPreviewReceipt] = useState<{
@@ -225,10 +229,15 @@ export const FinancialModule: React.FC<FinancialModuleProps> = ({
     if (!baixaTarget) return;
 
     if (!withFile) {
-      if (!confirm(`Deseja efetivar a baixa do título "${baixaTarget.description}" SEM anexar um comprovante?`)) {
-        return;
-      }
+      setPendingBaixaSemComprovante(true);
+      return;
     }
+
+    executeBaixaNow(withFile);
+  };
+
+  const executeBaixaNow = (withFile: boolean) => {
+    if (!baixaTarget) return;
 
     const finalFileName = withFile ? baixaFileName : undefined;
     const finalUrl = withFile ? baixaRealUrl : undefined;
@@ -454,13 +463,19 @@ export const FinancialModule: React.FC<FinancialModuleProps> = ({
   };
 
   const handleDelete = (acc: FinancialAccount) => {
-    if (confirm('Tem certeza de que deseja excluir este lançamento financeiro?')) {
+    setDeletingAccount(acc);
+  };
+
+  const confirmDeleteAccount = () => {
+    const acc = deletingAccount;
+    if (acc) {
       if (acc.isObraExpense && acc.originalExpenseId && onDeleteExpense) {
         onDeleteExpense(acc.originalExpenseId);
       } else if (onDeleteAccount) {
         onDeleteAccount(acc.id);
       }
     }
+    setDeletingAccount(null);
   };
 
   return (
@@ -544,21 +559,15 @@ export const FinancialModule: React.FC<FinancialModuleProps> = ({
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center space-x-2 border-b border-zinc-800 pb-2 text-xs font-bold font-mono">
-        {(['TODOS', 'Receber', 'Pagar'] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setFilterType(t)}
-            className={`px-4 py-2 rounded-xl transition-all ${
-              filterType === t
-                ? 'bg-amber-500 text-zinc-950 font-black'
-                : 'text-zinc-400 hover:bg-zinc-800'
-            }`}
-          >
-            {t === 'TODOS' ? 'Todos os Títulos' : t === 'Receber' ? 'Contas a Receber' : 'Contas a Pagar'}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        items={[
+          { id: 'TODOS', label: 'Todos os Títulos' },
+          { id: 'Receber', label: 'Contas a Receber' },
+          { id: 'Pagar', label: 'Contas a Pagar' },
+        ]}
+        activeId={filterType}
+        onChange={(id) => setFilterType(id as 'TODOS' | 'Pagar' | 'Receber')}
+      />
 
       {/* Financial Table */}
       <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-sm overflow-x-auto">
@@ -1138,6 +1147,28 @@ export const FinancialModule: React.FC<FinancialModuleProps> = ({
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={pendingBaixaSemComprovante}
+        title="Confirmar baixa sem comprovante"
+        message={`Deseja efetivar a baixa do título "${baixaTarget?.description ?? ''}" SEM anexar um comprovante?`}
+        confirmLabel="Confirmar Baixa"
+        onConfirm={() => {
+          setPendingBaixaSemComprovante(false);
+          executeBaixaNow(false);
+        }}
+        onCancel={() => setPendingBaixaSemComprovante(false)}
+      />
+
+      <ConfirmDialog
+        open={deletingAccount !== null}
+        title="Excluir lançamento financeiro"
+        message="Tem certeza de que deseja excluir este lançamento financeiro? Esta ação não poderá ser desfeita."
+        tone="danger"
+        confirmLabel="Excluir"
+        onConfirm={confirmDeleteAccount}
+        onCancel={() => setDeletingAccount(null)}
+      />
     </div>
   );
 };

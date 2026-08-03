@@ -37,6 +37,7 @@ import {
   KeyRound,
   Lock,
 } from 'lucide-react';
+import { Tabs } from './ui/Tabs';
 import {
   SystemCompanyConfig,
   TechnicalEngineer,
@@ -309,7 +310,7 @@ export const CadastrosModule: React.FC<CadastrosModuleProps> = ({
       document.body.removeChild(a);
     } else {
       const content = `=====================================================
-PROOBRAS ERP — DOCUMENTO DA EMPRESA ATUALIZADO
+ProObras ERP — DOCUMENTO DA EMPRESA ATUALIZADO
 =====================================================
 TÍTULO: ${doc.title}
 CATEGORIA: ${doc.categoryGroup} (${doc.codeOrType})
@@ -687,37 +688,15 @@ Documento autenticado e verificado no ERP ProObras.
       )}
 
       {/* Sub-Tabs Bar */}
-      <div className="flex items-center space-x-2 overflow-x-auto pb-2 border-b border-zinc-800 text-xs font-sans">
-        {SUB_TABS.map((tab) => {
-          const isActive = activeSubTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setActiveSubTab(tab.id as any);
-                setSearchTerm('');
-              }}
-              className={`px-3.5 py-2 rounded-xl font-semibold whitespace-nowrap transition-all flex items-center space-x-2 cursor-pointer ${
-                isActive
-                  ? 'bg-amber-500 text-zinc-950 font-bold shadow-md shadow-amber-950 scale-102'
-                  : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-zinc-200 hover:border-zinc-700'
-              }`}
-            >
-              <span>{tab.icon}</span>
-              <span>{tab.label}</span>
-              {tab.count !== undefined && (
-                <span
-                  className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
-                    isActive ? 'bg-zinc-950 text-amber-400' : 'bg-zinc-800 text-zinc-400'
-                  }`}
-                >
-                  {tab.count}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+      <Tabs
+        variant="chip"
+        items={SUB_TABS.map((tab) => ({ id: tab.id, label: tab.label, icon: tab.icon, badge: tab.count }))}
+        activeId={activeSubTab}
+        onChange={(id) => {
+          setActiveSubTab(id);
+          setSearchTerm('');
+        }}
+      />
 
       {/* SUB-TAB 0: GESTÃO DE DOCUMENTOS DA EMPRESA */}
       {activeSubTab === 'documentos_empresa' && (
@@ -2334,7 +2313,7 @@ Documento autenticado e verificado no ERP ProObras.
             </div>
 
             <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-center font-bold font-mono">
-              ✓ DOCUMENTO VERIFICADO E AUTENTICADO NO ERP PROOBRAS
+              ✓ DOCUMENTO VERIFICADO E AUTENTICADO NO ERP ProObras
             </div>
 
             <div className="flex flex-wrap items-center justify-end gap-2 pt-2">
