@@ -44,6 +44,32 @@ export const INITIAL_CONCESSIONARIAS: ConcessionariaConfig[] = [];
 export const INITIAL_DOCUMENT_CATEGORIES: DocumentCategoryConfig[] = [];
 export const INITIAL_MATERIAL_CATEGORIES: MaterialCategoryConfig[] = [];
 
+export const INITIAL_SYSTEM_USERS = [
+  {
+    id: 'USR-ADMIN',
+    name: 'Administrador Master',
+    email: 'admin@voltgrid.com.br',
+    cpf: '000.000.000-00',
+    phone: '(63) 99999-9999',
+    role: 'Administrador' as const,
+    password: 'admin123',
+    status: 'Ativo' as const,
+    createdAt: '2026-01-01',
+    allowedModules: [
+      'painel',
+      'obras',
+      'crm',
+      'clientes',
+      'financeiro',
+      'frota',
+      'rh',
+      'relatorios',
+      'documentacao',
+      'cadastros',
+    ],
+  },
+];
+
 export const INITIAL_COMPANY_CONFIG = {
   razaoSocial: 'MOURA SOLUÇÕES ELÉTRICAS LTDA',
   nomeFantasia: 'ProObras ERP - Gestão de Obras de Energia',

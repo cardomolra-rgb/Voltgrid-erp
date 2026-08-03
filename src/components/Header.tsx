@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   ChevronDown,
   User,
+  LogOut,
 } from 'lucide-react';
 import { UserRole, SystemUserItem } from '../types';
 
@@ -25,7 +26,9 @@ interface HeaderProps {
   registeredUsers?: SystemUserItem[];
   activeUser?: SystemUserItem | null;
   onSelectUser?: (user: SystemUserItem | null) => void;
+  onLogout?: () => void;
 }
+
 
 export const Header: React.FC<HeaderProps> = ({
   role,
@@ -40,6 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
   registeredUsers = [],
   activeUser,
   onSelectUser,
+  onLogout,
 }) => {
   const [showNotificationsPopover, setShowNotificationsPopover] = useState(false);
   const [showRoleSwitcher, setShowRoleSwitcher] = useState(false);
@@ -317,10 +321,26 @@ export const Header: React.FC<HeaderProps> = ({
                 })
               )}
             </div>
+
+            {onLogout && (
+              <div className="pt-2 mt-2 border-t border-zinc-800">
+                <button
+                  onClick={() => {
+                    setShowRoleSwitcher(false);
+                    onLogout();
+                  }}
+                  className="w-full p-2 rounded-lg text-xs font-bold text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-colors flex items-center justify-center space-x-2 cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sair do Sistema</span>
+                </button>
+              </div>
+            )}
           </div>
           )}
         </div>
       </div>
     </header>
+
   );
 };

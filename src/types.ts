@@ -22,6 +22,7 @@ export interface SystemUserItem {
   cpf: string;
   phone: string;
   role: UserRole;
+  password?: string;
   status: 'Ativo' | 'Inativo';
   createdAt: string;
   allowedModules: string[];

@@ -10,6 +10,7 @@ import { HRModule } from './components/HRModule';
 import { ReportsModule } from './components/ReportsModule';
 import { CadastrosModule } from './components/CadastrosModule';
 import { DocumentosGeradorModule } from './components/DocumentosGeradorModule';
+import { AuthScreen } from './components/AuthScreen';
 
 import {
   INITIAL_OBRAS,
@@ -34,7 +35,9 @@ import {
   INITIAL_CONCESSIONARIAS,
   INITIAL_DOCUMENT_CATEGORIES,
   INITIAL_MATERIAL_CATEGORIES,
+  INITIAL_SYSTEM_USERS,
 } from './data/mockData';
+
 
 import {
   Obra,
@@ -89,14 +92,6 @@ export default function App() {
     }
   }, [darkMode]);
 
-  // Registered Users and Permissions State
-  const [systemUsers, setSystemUsers] = useState<SystemUserItem[]>([]);
-  const [activeUser, setActiveUser] = useState<SystemUserItem | null>(null);
-
-  // AI Modal State
-  const [isAiModalOpen, setIsAiModalOpen] = useState<boolean>(false);
-  const [aiMode, setAiMode] = useState<'chat' | 'ocr'>('chat');
-
   // LocalStorage Helper for Master State Persistence
   const loadLocal = <T,>(key: string, fallback: T): T => {
     try {
@@ -106,6 +101,45 @@ export default function App() {
       return fallback;
     }
   };
+
+  // Registered Users and Permissions State
+  const [systemUsers, setSystemUsers] = useState<SystemUserItem[]>(() =>
+    loadLocal('voltgrid_system_users', INITIAL_SYSTEM_USERS)
+  );
+  const [activeUser, setActiveUser] = useState<SystemUserItem | null>(() =>
+    loadLocal('voltgrid_active_user', null)
+  );
+
+  // Sync role with activeUser when loaded or updated
+  useEffect(() => {
+    if (activeUser) {
+      setRole(activeUser.role);
+    }
+  }, [activeUser]);
+
+  // Handle Login & Logout Handlers
+  const handleLoginSuccess = (user: SystemUserItem) => {
+    setActiveUser(user);
+    setRole(user.role);
+    try {
+      localStorage.setItem('voltgrid_active_user', JSON.stringify(user));
+    } catch (e) {
+      console.warn('Error saving active user session:', e);
+    }
+  };
+
+  const handleLogout = () => {
+    setActiveUser(null);
+    try {
+      localStorage.removeItem('voltgrid_active_user');
+    } catch (e) {
+      console.warn('Error clearing active user session:', e);
+    }
+  };
+
+  // AI Modal State
+  const [isAiModalOpen, setIsAiModalOpen] = useState<boolean>(false);
+  const [aiMode, setAiMode] = useState<'chat' | 'ocr'>('chat');
 
   // App Master Data States (With Automatic Local Storage Persistence)
   const [companyConfig, setCompanyConfig] = useState<SystemCompanyConfig>(() =>
@@ -132,6 +166,12 @@ export default function App() {
   // Auto-Save Effect: Persists state directly to browser/app folder storage whenever modified
   useEffect(() => {
     try {
+      localStorage.setItem('voltgrid_system_users', JSON.stringify(systemUsers));
+      if (activeUser) {
+        localStorage.setItem('voltgrid_active_user', JSON.stringify(activeUser));
+      } else {
+        localStorage.removeItem('voltgrid_active_user');
+      }
       localStorage.setItem('voltgrid_company_config', JSON.stringify(companyConfig));
       localStorage.setItem('voltgrid_obras', JSON.stringify(obras));
       localStorage.setItem('voltgrid_clients', JSON.stringify(clients));
@@ -154,7 +194,10 @@ export default function App() {
       console.warn('LocalStorage save error:', err);
     }
   }, [
+    systemUsers,
+    activeUser,
     companyConfig,
+
     obras,
     clients,
     inventory,
@@ -720,6 +763,16 @@ export default function App() {
     setActiveTab('obras');
   };
 
+  if (!activeUser) {
+    return (
+      <AuthScreen
+        systemUsers={systemUsers}
+        onLoginSuccess={handleLoginSuccess}
+        companyName={companyConfig.nomeFantasia || 'ProObras ERP • VoltGrid'}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 font-sans selection:bg-blue-500 selection:text-white transition-colors duration-200">
       {/* Header */}
@@ -737,7 +790,9 @@ export default function App() {
           setActiveUser(u);
           if (u) setRole(u.role);
         }}
+        onLogout={handleLogout}
       />
+
 
       {/* Main Layout Container */}
       <div className="flex pt-16 print:pt-0 print:block">

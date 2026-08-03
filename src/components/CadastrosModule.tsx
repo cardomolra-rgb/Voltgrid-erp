@@ -439,6 +439,7 @@ Documento autenticado e verificado no ERP ProObras.
               cpf: userCpf.trim(),
               phone: userPhone.trim(),
               role: userRole,
+              password: userPassword.trim() || u.password || 'admin123',
               status: userStatus,
               allowedModules: userAllowedModules,
             }
@@ -455,6 +456,7 @@ Documento autenticado e verificado no ERP ProObras.
         cpf: userCpf.trim(),
         phone: userPhone.trim(),
         role: userRole,
+        password: userPassword.trim() || 'admin123',
         status: userStatus,
         createdAt: new Date().toISOString().split('T')[0],
         allowedModules: userAllowedModules,
@@ -462,6 +464,7 @@ Documento autenticado e verificado no ERP ProObras.
       if (onSaveUsers) onSaveUsers([newUser, ...systemUsers]);
       setSaveBannerMessage(`Novo usuário "${userName}" cadastrado com sucesso!`);
     }
+
 
     setShowAddUserModal(false);
     setUserName('');
