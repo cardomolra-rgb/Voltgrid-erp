@@ -76,22 +76,47 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
   });
 
   // Dynamic precise calculations for selected month/period
+  // Dynamic precise calculations for selected month/period
   const totalReceitaBruta =
     filteredFinancials.filter((f) => f.type === 'Receber').reduce((acc, f) => acc + (f.totalValue || 0), 0) ||
     filteredObras.reduce((acc, o) => acc + (o.totalValue || 0), 0);
 
-  const taxRatePercent = companyConfig?.aliquotaImpostoPercent ?? 9;
-  const taxRate = taxRatePercent / 100;
-  const totalImpostosTaxas = totalReceitaBruta * taxRate;
-  const receitaLiquida = totalReceitaBruta - totalImpostosTaxas;
+  // 1. Calculate actual Tax Payables (Impostos) registered in Contas a Pagar / Financials & Expenses (No estimation)
+  const isTaxAccount = (category?: string, description?: string) => {
+    const catLower = (category || '').toLowerCase();
+    const descLower = (description || '').toLowerCase();
+    return (
+      category === 'Impostos' ||
+      catLower.includes('imposto') ||
+      catLower.includes('tributo') ||
+      descLower.includes('imposto') ||
+      descLower.includes('tributo') ||
+      descLower.includes('das ') ||
+      descLower.includes('iss ') ||
+      descLower.includes('pis/cofins')
+    );
+  };
 
-  // Financial Accounts Pagar + Standalone Obra Expenses
-  const totalDespesasPagarFinancials = filteredFinancials
-    .filter((f) => f.type === 'Pagar')
+  const totalImpostosTaxasFromFinancials = filteredFinancials
+    .filter((f) => f.type === 'Pagar' && isTaxAccount(f.category, f.description))
     .reduce((acc, f) => acc + (f.totalValue || 0), 0);
 
-  // Standalone Obra Expenses that may not be in financials directly
+  const totalImpostosTaxasFromExpenses = filteredExpenses
+    .filter((exp) => isTaxAccount(exp.category, exp.description))
+    .filter((exp) => !filteredFinancials.some((f) => f.id === `FIN-EXP-${exp.id}`))
+    .reduce((acc, exp) => acc + (exp.value || 0), 0);
+
+  const totalImpostosTaxas = totalImpostosTaxasFromFinancials + totalImpostosTaxasFromExpenses;
+  const receitaLiquida = totalReceitaBruta - totalImpostosTaxas;
+
+  // 2. Financial Accounts Pagar (Excluding Taxes to avoid double-deduction)
+  const totalDespesasPagarFinancials = filteredFinancials
+    .filter((f) => f.type === 'Pagar' && !isTaxAccount(f.category, f.description))
+    .reduce((acc, f) => acc + (f.totalValue || 0), 0);
+
+  // Standalone Obra Expenses excluding Taxes and already linked Financials
   const totalObraExpensesStandalone = filteredExpenses
+    .filter((exp) => !isTaxAccount(exp.category, exp.description))
     .filter((exp) => !filteredFinancials.some((f) => f.id === `FIN-EXP-${exp.id}`))
     .reduce((acc, exp) => acc + (exp.value || 0), 0);
 
@@ -145,7 +170,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
     } else if (selectedReportType === 'dre_executivo') {
       csvContent += 'Indicador,Valor (R$),Detalhamento\n';
       csvContent += `"Receita Bruta Total",${totalReceitaBruta},"Faturamento do Mês"\n`;
-      csvContent += `"(-) Impostos e Taxas Regulatórias",-${totalImpostosTaxas},"Alíquota ${taxRatePercent}%"\n`;
+      csvContent += `"(-) Impostos e Tributos Lançados em Contas a Pagar",-${totalImpostosTaxas},"Lançamentos Reais em Contas a Pagar"\n`;
       csvContent += `"(=) Receita Líquida",${receitaLiquida},"Receita Pós-Impostos"\n`;
       csvContent += `"(-) Contas a Pagar / Despesas Totais",-${totalDespesasPagar},"Despesas Operacionais e Obras"\n`;
       csvContent += `"(=) LUCRO LÍQUIDO OPERACIONAL",${lucroLiquidoOperacional},"${margemPercentual}% de Margem"\n`;
@@ -173,6 +198,7 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
     link.click();
     document.body.removeChild(link);
   };
+
 
   return (
     <div className="space-y-6 font-sans">
@@ -315,10 +341,20 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({
               </span>
             </div>
 
-            <div className="flex justify-between py-2 border-b border-zinc-800 pl-4 text-zinc-400 font-mono">
-              <span>(-) Impostos e Taxas Regulatórias Estimadas ({taxRatePercent}%)</span>
-              <span className="text-rose-400">- R$ {totalImpostosTaxas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+            <div className="flex items-center justify-between py-2 border-b border-zinc-800 pl-4 font-mono">
+              <div className="flex flex-col">
+                <span className="font-semibold text-zinc-200">(-) Impostos e Tributos (Lançamentos Reais em Contas a Pagar)</span>
+                <span className="text-[10.5px] text-zinc-500 font-sans">
+                  {totalImpostosTaxas > 0
+                    ? `Soma de lançamentos na categoria 'Impostos' ou tributos (DAS/ISS/PIS) no Contas a Pagar.`
+                    : `Lançado via Contas a Pagar (Cadastre títulos com categoria 'Impostos' para deduzir aqui).`}
+                </span>
+              </div>
+              <span className="text-rose-400 font-bold">
+                - R$ {totalImpostosTaxas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </span>
             </div>
+
 
             <div className="flex justify-between py-2.5 border-b border-zinc-800 font-semibold bg-zinc-950 p-3 rounded-xl border border-zinc-800 font-mono">
               <span className="text-zinc-200">2. (=) Receita Líquida Pós-Tributos</span>

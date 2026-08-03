@@ -1011,12 +1011,33 @@ export const FinancialModule: React.FC<FinancialModuleProps> = ({
                 <input
                   type="text"
                   required
-                  placeholder="Ex: Aquisição de Lote de Cabos ou Medição #2..."
+                  placeholder="Ex: Pagamento DAS Simples Nacional, Nota de Materiais ou Medição #2..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-blue-500 font-sans"
                 />
               </div>
+
+              <div>
+                <label className="font-semibold text-amber-400 block mb-1 font-mono uppercase text-[11px]">
+                  Categoria Financeira
+                </label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value as any)}
+                  className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-100 font-semibold focus:outline-none focus:border-blue-500 font-sans"
+                >
+                  <option value="Impostos">🏛️ Impostos / Tributos (DAS / ISS / PIS / COFINS)</option>
+                  <option value="Material">📦 Material de Obra / Insumos</option>
+                  <option value="Mão de Obra">👷 Mão de Obra / Salários</option>
+                  <option value="Frota/Combustível">⛽ Frota / Combustível</option>
+                  <option value="Diárias/Hospedagem">🏨 Diárias / Hospedagem / Alimentação</option>
+                  <option value="Equipamentos/Linha Viva">⚡ Equipamentos / Linha Viva</option>
+                  <option value="Projetos/ART">📐 Projetos / ART / Licenciamento</option>
+                  <option value="Faturamento Obra">💰 Faturamento Obra (Receita)</option>
+                </select>
+              </div>
+
 
               <div>
                 <label className="font-semibold text-zinc-300 block mb-1">Fornecedor / Cliente / Favorecido</label>
