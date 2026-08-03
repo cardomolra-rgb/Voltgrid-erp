@@ -11,6 +11,8 @@ import { ReportsModule } from './components/ReportsModule';
 import { CadastrosModule } from './components/CadastrosModule';
 import { DocumentosGeradorModule } from './components/DocumentosGeradorModule';
 import { AuthScreen } from './components/AuthScreen';
+import { PublicProposalApproval } from './components/PublicProposalApproval';
+
 
 import {
   INITIAL_OBRAS,
@@ -763,6 +765,61 @@ export default function App() {
     setActiveTab('obras');
   };
 
+  // Public URL Approval Router for Client Link sent via WhatsApp (?aprovar=...)
+  const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const publicApprovalId = urlParams?.get('aprovar') || urlParams?.get('proposta');
+
+  if (publicApprovalId) {
+    const targetProposal = proposals.find((p) => p.id === publicApprovalId || p.proposalNumber === publicApprovalId) || proposals[0];
+
+    if (targetProposal) {
+      return (
+        <PublicProposalApproval
+          proposal={targetProposal}
+          companyConfig={companyConfig}
+          onApprove={(prop, signerName, signerCpf) => {
+            const formattedDate = new Date().toLocaleDateString('pt-BR');
+            const nowIso = new Date().toISOString();
+
+            const updatedProp: CommercialProposal = {
+              ...prop,
+              status: 'Aprovada',
+              history: [
+                {
+                  id: `LOG-${Date.now()}`,
+                  date: formattedDate,
+                  user: `Cliente: ${signerName}`,
+                  action: `Proposta APROVADA DIGITALMENTE pelo cliente (CPF/CNPJ: ${signerCpf})`,
+                  version: prop.currentVersion,
+                },
+                ...(prop.history || []),
+              ],
+              updatedAt: nowIso,
+            };
+
+            const updatedList = proposals.map((p) => (p.id === prop.id ? updatedProp : p));
+            setProposals(updatedList);
+            try {
+              localStorage.setItem('proobras_proposals', JSON.stringify(updatedList));
+            } catch (e) {}
+
+            handleConvertProposalToObra(updatedProp);
+
+            try {
+              window.history.replaceState({}, document.title, window.location.pathname);
+            } catch (e) {}
+          }}
+          onClose={() => {
+            try {
+              window.history.replaceState({}, document.title, window.location.pathname);
+              window.location.reload();
+            } catch (e) {}
+          }}
+        />
+      );
+    }
+  }
+
   if (!activeUser) {
     return (
       <AuthScreen
@@ -772,6 +829,7 @@ export default function App() {
       />
     );
   }
+
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 font-sans selection:bg-blue-500 selection:text-white transition-colors duration-200">

@@ -50,6 +50,8 @@ import {
   maskPhone,
 } from '../types';
 import { Tabs } from './ui/Tabs';
+import { PublicProposalApproval } from './PublicProposalApproval';
+
 
 // CPF & CNPJ Validation Helper Function (Mathematical Check Digits)
 const validateCpfCnpj = (value: string): { isValid: boolean; type: 'CPF' | 'CNPJ' | 'INV' | 'EMPTY' } => {
@@ -227,6 +229,8 @@ export const CRMModule: React.FC<CRMModuleProps> = ({
   const [editingProposal, setEditingProposal] = useState<CommercialProposal | null>(null);
   const [previewProposal, setPreviewProposal] = useState<CommercialProposal | null>(null);
   const [historyProposal, setHistoryProposal] = useState<CommercialProposal | null>(null);
+  const [clientApprovalProposal, setClientApprovalProposal] = useState<CommercialProposal | null>(null);
+
 
   // Proposal Form State
   const [formClientId, setFormClientId] = useState('');
@@ -516,30 +520,76 @@ export const CRMModule: React.FC<CRMModuleProps> = ({
     setTimeout(() => setSaveMessage(null), 4000);
   };
 
-  // Send WhatsApp Proposal Handler
+  // Send WhatsApp Proposal Handler (With Digital Approval Link)
   const handleSendWhatsApp = (prop: CommercialProposal) => {
     const cleanPhone = prop.clientPhone.replace(/\D/g, '');
+    const approvalUrl = `${window.location.origin}${window.location.pathname}?aprovar=${prop.id}`;
     const message = `👋 Olá, *${prop.clientName}*!
 
-Segue os detalhes da nossa *Proposta Comercial nº ${prop.proposalNumber}*:
+Segue a nossa *Proposta Comercial nº ${prop.proposalNumber}*:
 
 📌 *Tipo de Serviço:* ${prop.proposalType}
-📅 *Data da Proposta:* ${prop.date}
-⏱️ *Validade:* ${prop.validityDate}
+📅 *Data:* ${prop.date} | *Validade:* ${prop.validityDate}
 💰 *Valor Total:* R$ ${prop.totalValue.toLocaleString('pt-BR')} (${prop.totalValueInWords})
 
-📄 *Empresa:* ${companyConfig.razaoSocial || 'ProObras ERP - Gestão de Obras'}
+📄 *LINK DE ACEITE E ASSINATURA DIGITAL:*
+${approvalUrl}
+
+⚡ _Acesse o link acima para revisar os itens e efetuar a APROVAÇÃO DIGITAL online instantaneamente._
+
 📞 *Contato:* ${companyConfig.telefone} | ${companyConfig.email}
 
-Permanecemos à disposição para sanar quaisquer dúvidas técnicas ou comerciais!
-
 Atenciosamente,
-*${prop.sellerName}*`;
+*${prop.sellerName}* — ${companyConfig.razaoSocial || 'ProObras ERP'}`;
 
     const encoded = encodeURIComponent(message);
     const targetUrl = cleanPhone ? `https://api.whatsapp.com/send?phone=55${cleanPhone}&text=${encoded}` : `https://api.whatsapp.com/send?text=${encoded}`;
     window.open(targetUrl, '_blank');
   };
+
+  // Copy Approval Link Handler
+  const handleCopyApprovalLink = (prop: CommercialProposal) => {
+    const approvalUrl = `${window.location.origin}${window.location.pathname}?aprovar=${prop.id}`;
+    navigator.clipboard.writeText(approvalUrl);
+    setSaveMessage(`Link de aprovação da Proposta "${prop.proposalNumber}" copiado para a área de transferência!`);
+    setTimeout(() => setSaveMessage(null), 4000);
+  };
+
+  // Approve Proposal via Client Approval Portal Handler
+  const handleApproveProposalFromPortal = (prop: CommercialProposal, signerName: string, signerCpf: string) => {
+    const formattedDate = new Date().toLocaleDateString('pt-BR');
+    const nowIso = new Date().toISOString();
+
+    const newLog: ProposalHistoryLog = {
+      id: `LOG-${Date.now()}`,
+      date: formattedDate,
+      user: `Cliente: ${signerName}`,
+      action: `Proposta APROVADA DIGITALMENTE pelo cliente (CPF/CNPJ: ${signerCpf})`,
+      version: prop.currentVersion,
+    };
+
+    const updatedProp: CommercialProposal = {
+      ...prop,
+      status: 'Aprovada' as ProposalStatus,
+      history: [newLog, ...(prop.history || [])],
+      updatedAt: nowIso,
+    };
+
+    const updatedList = proposalList.map((p) => (p.id === prop.id ? updatedProp : p));
+    setProposalList(updatedList);
+    if (onSaveProposals) onSaveProposals(updatedList);
+
+    if (onConvertProposalToObra) {
+      onConvertProposalToObra(updatedProp);
+      setSaveMessage(`Proposta "${prop.proposalNumber}" APROVADA pelo cliente! Obra criada automaticamente no sistema.`);
+    } else {
+      setSaveMessage(`Proposta "${prop.proposalNumber}" APROVADA pelo cliente com sucesso! Status atualizado.`);
+    }
+
+    setClientApprovalProposal(null);
+    setTimeout(() => setSaveMessage(null), 5000);
+  };
+
 
   // Standalone Clean Window Print / PDF Export Handler (Zero Black Space)
   const handlePrintPDFDocument = (prop: CommercialProposal) => {
@@ -1175,14 +1225,33 @@ Atenciosamente,
                               <Copy className="w-3.5 h-3.5" />
                             </button>
 
-                            {/* Action: WhatsApp */}
+                            {/* Action: WhatsApp (com link de aceite digital) */}
                             <button
                               onClick={() => handleSendWhatsApp(prop)}
-                              title="Enviar via WhatsApp"
+                              title="Enviar Proposta e Link de Aceite via WhatsApp"
                               className="p-1.5 rounded-lg bg-zinc-900 hover:bg-emerald-500 text-zinc-400 hover:text-white border border-zinc-800 transition-colors"
                             >
                               <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
                             </button>
+
+                            {/* Action: Copiar Link de Aceite */}
+                            <button
+                              onClick={() => handleCopyApprovalLink(prop)}
+                              title="Copiar Link de Aceite Digital para WhatsApp/E-mail"
+                              className="p-1.5 rounded-lg bg-zinc-900 hover:bg-teal-600 text-zinc-400 hover:text-white border border-zinc-800 transition-colors"
+                            >
+                              <Share2 className="w-3.5 h-3.5 text-teal-400" />
+                            </button>
+
+                            {/* Action: Portal de Aceite do Cliente */}
+                            <button
+                              onClick={() => setClientApprovalProposal(prop)}
+                              title="Abrir Portal de Aceite / Aprovação Digital do Cliente"
+                              className="p-1.5 rounded-lg bg-zinc-900 hover:bg-amber-500 text-zinc-400 hover:text-zinc-950 border border-zinc-800 transition-colors"
+                            >
+                              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                            </button>
+
 
                             {/* Action: Converter em Contrato */}
                             {prop.status !== 'Aprovada' && (
@@ -2191,6 +2260,20 @@ Atenciosamente,
           </div>
         </div>
       )}
+
+      {/* MODAL: PORTAL DE ACEITE DIGITAL DO CLIENTE */}
+      {clientApprovalProposal && (
+
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-zinc-950">
+          <PublicProposalApproval
+            proposal={clientApprovalProposal}
+            companyConfig={companyConfig}
+            onApprove={(prop, name, cpf) => handleApproveProposalFromPortal(prop, name, cpf)}
+            onClose={() => setClientApprovalProposal(null)}
+          />
+        </div>
+      )}
     </div>
   );
 };
+
