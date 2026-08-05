@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Tabs } from './ui/Tabs';
 import { ConfirmDialog } from './ui/Modal';
 import {
@@ -15,12 +15,14 @@ import {
   Paperclip,
   ExternalLink,
   Eye,
+  Search,
 } from 'lucide-react';
-import { FinancialAccount, Obra, ObraExpense } from '../types';
+import { FinancialAccount, Obra, ObraExpense, Client } from '../types';
 
 interface FinancialModuleProps {
   financials: FinancialAccount[];
   obras: Obra[];
+  clients?: Client[];
   expenses?: ObraExpense[];
   onAddAccount: (acc: FinancialAccount) => void;
   onUpdateAccount?: (acc: FinancialAccount) => void;
@@ -33,6 +35,7 @@ interface FinancialModuleProps {
 export const FinancialModule: React.FC<FinancialModuleProps> = ({
   financials,
   obras,
+  clients = [],
   expenses = [],
   onAddAccount,
   onUpdateAccount,
@@ -43,6 +46,7 @@ export const FinancialModule: React.FC<FinancialModuleProps> = ({
 }) => {
   const [filterType, setFilterType] = useState<'TODOS' | 'Pagar' | 'Receber'>('TODOS');
   const [showModal, setShowModal] = useState(false);
+
   const [editingAccount, setEditingAccount] = useState<FinancialAccount | null>(null);
 
   // Modal for "Dar Baixa (Com ou Sem Comprovante)"
@@ -78,6 +82,34 @@ export const FinancialModule: React.FC<FinancialModuleProps> = ({
   const [recurrenceType, setRecurrenceType] = useState<'Unica' | 'Recorrente' | 'Parcelada'>('Unica');
   const [installmentCount, setInstallmentCount] = useState<number>(6);
   const [divideTotalValue, setDivideTotalValue] = useState<boolean>(true);
+
+  // Combobox Autocomplete State for Favorecido
+  const [showFavorecidoDropdown, setShowFavorecidoDropdown] = useState(false);
+
+  // Derive candidate list of suppliers/clients for Autocomplete
+  const candidateFavorecidos = useMemo(() => {
+    const set = new Set<string>();
+    set.add('Receita Federal / Simples Nacional (DAS)');
+    set.add('Prefeitura Municipal (ISS)');
+    set.add('Posto Shell / Distribuidora de Combustível');
+    set.add('Siemens / Schneider / Romagnole Equipamentos');
+    set.add('Concessionária de Energia');
+
+    clients.forEach((c) => {
+      if (c.name) set.add(c.name);
+    });
+
+    financials.forEach((f) => {
+      if (f.supplierClient) set.add(f.supplierClient);
+    });
+
+    return Array.from(set);
+  }, [clients, financials]);
+
+  const filteredFavorecidos = candidateFavorecidos.filter((fav) =>
+    fav.toLowerCase().includes((supplierClient || '').toLowerCase())
+  );
+
 
   // Helper for shifted monthly due dates
   const addMonthsToDate = (dateStr: string, monthsToAdd: number): string => {
@@ -963,11 +995,17 @@ export const FinancialModule: React.FC<FinancialModuleProps> = ({
       {/* Add / Edit Financial Title Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 bg-zinc-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md rounded-2xl bg-zinc-900 border border-zinc-800 p-6 space-y-4 shadow-2xl">
+          <div className="w-full max-w-xl max-h-[92vh] overflow-y-auto rounded-2xl bg-zinc-900 border border-zinc-800 p-6 space-y-5 shadow-2xl">
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <h2 className="text-sm font-semibold text-zinc-100 uppercase tracking-wider font-mono">
-                {editingAccount ? 'Editar Título Financeiro' : 'Lançar Novo Título Financeiro'}
-              </h2>
+              <div>
+                <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-wider font-mono flex items-center space-x-2">
+                  <DollarSign className="w-4 h-4 text-emerald-400" />
+                  <span>{editingAccount ? 'Editar Título Financeiro' : 'Lançar Novo Título Financeiro'}</span>
+                </h2>
+                <p className="text-[11px] text-zinc-400 font-sans mt-0.5">
+                  Preencha os blocos abaixo para registrar receitas, despesas ou impostos no ERP.
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
@@ -977,113 +1015,194 @@ export const FinancialModule: React.FC<FinancialModuleProps> = ({
               </button>
             </div>
 
-            <form onSubmit={handleSaveAccount} className="space-y-3.5 text-xs">
-              <div>
-                <label className="font-semibold text-zinc-300 block mb-1">Tipo de Título</label>
-                <select
-                  value={type}
-                  onChange={(e) => setType(e.target.value as any)}
-                  className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-100 focus:outline-none focus:border-blue-500 font-sans"
-                >
-                  <option value="Pagar">Conta a Pagar (Despesa / Fornecedor)</option>
-                  <option value="Receber">Conta a Receber (Receita / Medição)</option>
-                </select>
-              </div>
+            <form onSubmit={handleSaveAccount} className="space-y-5 text-xs font-sans">
+              {/* BLOCO 1: IDENTIFICAÇÃO DO TÍTULO */}
+              <div className="p-4 rounded-xl bg-zinc-950/70 border border-zinc-800/80 space-y-3.5">
+                <div className="flex items-center space-x-2 border-b border-zinc-800/60 pb-2">
+                  <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                  <h3 className="font-mono text-zinc-300 font-bold text-[11px] uppercase tracking-wide">
+                    1. Identificação do Título
+                  </h3>
+                </div>
 
-              <div>
-                <label className="font-semibold text-zinc-300 block mb-1">Vincular à Obra Cadastrada</label>
-                <select
-                  value={selectedObraId}
-                  onChange={(e) => setSelectedObraId(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-100 focus:outline-none focus:border-blue-500 font-sans"
-                >
-                  <option value="">Nenhuma / Despesa Institucional Geral</option>
-                  {obras.map((o) => (
-                    <option key={o.id} value={o.id}>
-                      {o.projectNumber || o.code} - {o.projectName} ({o.clientName})
-                    </option>
-                  ))}
-                </select>
-              </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-medium text-zinc-300 block mb-1">Tipo de Título</label>
+                    <select
+                      tabIndex={1}
+                      value={type}
+                      onChange={(e) => setType(e.target.value as any)}
+                      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-100 focus:outline-none focus:border-blue-500 font-semibold"
+                    >
+                      <option value="Pagar">🔴 Conta a Pagar (Despesa / Fornecedor / Imposto)</option>
+                      <option value="Receber">🟢 Conta a Receber (Receita / Medição)</option>
+                    </select>
+                  </div>
 
-              <div>
-                <label className="font-semibold text-zinc-300 block mb-1">Descrição do Título</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex: Pagamento DAS Simples Nacional, Nota de Materiais ou Medição #2..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-blue-500 font-sans"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-amber-400 block mb-1 font-mono uppercase text-[11px]">
-                  Categoria Financeira
-                </label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value as any)}
-                  className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-100 font-semibold focus:outline-none focus:border-blue-500 font-sans"
-                >
-                  <option value="Impostos">🏛️ Impostos / Tributos (DAS / ISS / PIS / COFINS)</option>
-                  <option value="Material">📦 Material de Obra / Insumos</option>
-                  <option value="Mão de Obra">👷 Mão de Obra / Salários</option>
-                  <option value="Frota/Combustível">⛽ Frota / Combustível</option>
-                  <option value="Diárias/Hospedagem">🏨 Diárias / Hospedagem / Alimentação</option>
-                  <option value="Equipamentos/Linha Viva">⚡ Equipamentos / Linha Viva</option>
-                  <option value="Projetos/ART">📐 Projetos / ART / Licenciamento</option>
-                  <option value="Faturamento Obra">💰 Faturamento Obra (Receita)</option>
-                </select>
-              </div>
-
-
-              <div>
-                <label className="font-semibold text-zinc-300 block mb-1">Fornecedor / Cliente / Favorecido</label>
-                <input
-                  type="text"
-                  placeholder="Nome do fornecedor ou cliente..."
-                  value={supplierClient}
-                  onChange={(e) => setSupplierClient(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-blue-500 font-sans"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-semibold text-zinc-300 block mb-1">Valor Total (R$)</label>
-                  <input
-                    type="number"
-                    required
-                    value={value}
-                    onChange={(e) => setValue(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-100 focus:outline-none focus:border-blue-500 font-mono"
-                  />
+                  <div>
+                    <label className="font-medium text-zinc-300 block mb-1">Vínculo à Obra Cadastrada</label>
+                    <select
+                      tabIndex={2}
+                      value={selectedObraId}
+                      onChange={(e) => setSelectedObraId(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-100 focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="">Nenhuma / Despesa Institucional Geral</option>
+                      {obras.map((o) => (
+                        <option key={o.id} value={o.id}>
+                          {o.projectNumber || o.code} - {o.projectName} ({o.clientName})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div>
-                  <label className="font-semibold text-zinc-300 block mb-1">Data 1º Vencimento</label>
+                  <label className="font-medium text-zinc-300 block mb-1">Descrição do Título *</label>
                   <input
-                    type="date"
+                    tabIndex={3}
+                    type="text"
                     required
-                    value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-100 focus:outline-none focus:border-blue-500 font-mono"
+                    placeholder="Ex: Pagamento DAS Simples Nacional, Nota de Materiais Elétricos..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
 
-              {/* Recorrência e Quantidade de Parcelas */}
-              <div className="p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 space-y-3">
+              {/* BLOCO 2: CLASSIFICAÇÃO E FAVORECIDO */}
+              <div className="p-4 rounded-xl bg-zinc-950/70 border border-zinc-800/80 space-y-3.5">
+                <div className="flex items-center space-x-2 border-b border-zinc-800/60 pb-2">
+                  <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                  <h3 className="font-mono text-zinc-300 font-bold text-[11px] uppercase tracking-wide">
+                    2. Classificação & Favorecido
+                  </h3>
+                </div>
+
                 <div>
-                  <label className="font-semibold text-amber-400 block mb-1 font-mono uppercase text-[11px]">
-                    Recorrência / Condição de Pagamento
+                  <label className="font-medium text-zinc-300 block mb-1">Categoria Financeira</label>
+                  <select
+                    tabIndex={4}
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value as any)}
+                    className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-100 font-semibold focus:outline-none focus:border-amber-500"
+                  >
+                    <option value="Impostos">🏛️ Impostos / Tributos (DAS / ISS / PIS / COFINS)</option>
+                    <option value="Material">📦 Material de Obra / Insumos</option>
+                    <option value="Mão de Obra">👷 Mão de Obra / Salários</option>
+                    <option value="Frota/Combustível">⛽ Frota / Combustível</option>
+                    <option value="Diárias/Hospedagem">🏨 Diárias / Hospedagem / Alimentação</option>
+                    <option value="Equipamentos/Linha Viva">⚡ Equipamentos / Linha Viva</option>
+                    <option value="Projetos/ART">📐 Projetos / ART / Licenciamento</option>
+                    <option value="Faturamento Obra">💰 Faturamento Obra (Receita)</option>
+                  </select>
+                </div>
+
+                {/* Combobox Autocomplete para Favorecido */}
+                <div className="relative">
+                  <label className="font-medium text-zinc-300 block mb-1">
+                    Fornecedor / Cliente / Favorecido
+                  </label>
+                  <div className="relative">
+                    <input
+                      tabIndex={5}
+                      type="text"
+                      placeholder="Busque ou digite o nome do fornecedor/cliente..."
+                      value={supplierClient}
+                      onFocus={() => setShowFavorecidoDropdown(true)}
+                      onChange={(e) => {
+                        setSupplierClient(e.target.value);
+                        setShowFavorecidoDropdown(true);
+                      }}
+                      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-amber-500 pr-8"
+                    />
+                    <Search className="w-3.5 h-3.5 absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+                  </div>
+
+                  {showFavorecidoDropdown && (
+                    <div className="absolute left-0 right-0 top-full mt-1 z-30 max-h-48 overflow-y-auto rounded-xl bg-zinc-900 border border-zinc-700 shadow-2xl divide-y divide-zinc-800">
+                      {filteredFavorecidos.length > 0 ? (
+                        filteredFavorecidos.map((fav, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => {
+                              setSupplierClient(fav);
+                              setShowFavorecidoDropdown(false);
+                            }}
+                            className="w-full text-left px-3 py-2 hover:bg-zinc-800 text-zinc-200 text-xs transition-colors flex items-center justify-between"
+                          >
+                            <span>{fav}</span>
+                            <span className="text-[10px] text-zinc-500 font-mono">Selecionar</span>
+                          </button>
+                        ))
+                      ) : (
+                        <div className="p-3 text-[11px] text-zinc-400 text-center font-sans">
+                          Nenhum cadastrado encontrado. Pressione <strong className="text-zinc-200">Enter</strong> para salvar como novo favorecido.
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* BLOCO 3: VALORES, PRAZOS & RECORRÊNCIA */}
+              <div className="p-4 rounded-xl bg-zinc-950/70 border border-zinc-800/80 space-y-3.5">
+                <div className="flex items-center space-x-2 border-b border-zinc-800/60 pb-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <h3 className="font-mono text-zinc-300 font-bold text-[11px] uppercase tracking-wide">
+                    3. Valores, Prazos & Recorrência
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-medium text-zinc-300 block mb-1">Valor Total (R$)</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 font-mono font-bold text-xs">
+                        R$
+                      </span>
+                      <input
+                        tabIndex={6}
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        required
+                        value={value || ''}
+                        onChange={(e) => setValue(parseFloat(e.target.value) || 0)}
+                        className="w-full pl-9 pr-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-100 font-mono font-bold focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                    {value > 0 && (
+                      <span className="text-[10px] text-emerald-400 font-mono block mt-1">
+                        Formatado: {value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="font-medium text-zinc-300 block mb-1">Data 1º Vencimento</label>
+                    <input
+                      tabIndex={7}
+                      type="date"
+                      required
+                      value={dueDate}
+                      onChange={(e) => setDueDate(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-100 font-mono focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="font-medium text-zinc-300 block mb-1 font-mono text-[11px]">
+                    Condição de Pagamento / Recorrência
                   </label>
                   <select
+                    tabIndex={8}
                     value={recurrenceType}
                     onChange={(e) => setRecurrenceType(e.target.value as any)}
-                    className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-100 font-semibold focus:outline-none focus:border-blue-500 font-sans"
+                    className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-100 font-semibold focus:outline-none focus:border-emerald-500"
                   >
                     <option value="Unica">À Vista / Lançamento Único (1x)</option>
                     <option value="Parcelada">Parcelado em N vezes (Ex: 2x, 3x, 6x, 10x, 12x)</option>
@@ -1091,28 +1210,31 @@ export const FinancialModule: React.FC<FinancialModuleProps> = ({
                   </select>
                 </div>
 
+                {/* Dynamic Conditional Fields for Installment Calculation */}
                 {recurrenceType === 'Parcelada' && (
-                  <div className="grid grid-cols-2 gap-3 pt-1">
+                  <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 grid grid-cols-2 gap-3 transition-all">
                     <div>
-                      <label className="font-semibold text-zinc-300 block mb-1">Qtd. de Parcelas</label>
+                      <label className="font-medium text-zinc-300 block mb-1">Qtd. de Parcelas</label>
                       <input
+                        tabIndex={9}
                         type="number"
                         min={2}
                         max={60}
                         value={installmentCount}
                         onChange={(e) => setInstallmentCount(Math.max(2, Math.min(60, parseInt(e.target.value) || 2)))}
-                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-100 font-mono"
+                        className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-100 font-mono font-bold"
                       />
                     </div>
 
                     <div>
-                      <label className="font-semibold text-zinc-300 block mb-1">Cálculo das Parcelas</label>
+                      <label className="font-medium text-zinc-300 block mb-1">Cálculo das Parcelas</label>
                       <select
+                        tabIndex={10}
                         value={divideTotalValue ? 'dividir' : 'integral'}
                         onChange={(e) => setDivideTotalValue(e.target.value === 'dividir')}
-                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-100 font-sans"
+                        className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-100"
                       >
-                        <option value="dividir">Dividir Total (R$ {Math.round(value / Math.max(1, installmentCount)).toLocaleString('pt-BR')}/parc)</option>
+                        <option value="dividir">Dividir Total ({(value / Math.max(1, installmentCount)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}/parc)</option>
                         <option value="integral">Valor Integral em cada parcela</option>
                       </select>
                     </div>
@@ -1120,54 +1242,60 @@ export const FinancialModule: React.FC<FinancialModuleProps> = ({
                 )}
 
                 {recurrenceType === 'Recorrente' && (
-                  <div className="pt-1">
-                    <label className="font-semibold text-zinc-300 block mb-1">Quantidade de Meses a Gerar</label>
+                  <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 space-y-1 transition-all">
+                    <label className="font-medium text-zinc-300 block mb-1">Qtd. de Meses a Gerar</label>
                     <input
+                      tabIndex={9}
                       type="number"
                       min={2}
                       max={60}
                       value={installmentCount}
                       onChange={(e) => setInstallmentCount(Math.max(2, Math.min(60, parseInt(e.target.value) || 2)))}
-                      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-100 font-mono"
+                      className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-100 font-mono font-bold"
                     />
                     <span className="text-[10px] text-zinc-400 block mt-1">
-                      Serão gerados {installmentCount} lançamentos mensais idênticos de R$ {value.toLocaleString('pt-BR')} cada.
+                      Serão gerados {installmentCount} lançamentos mensais idênticos de {value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} cada.
                     </span>
                   </div>
                 )}
+
+                <div>
+                  <label className="font-medium text-zinc-300 block mb-1">Status Inicial</label>
+                  <select
+                    tabIndex={11}
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value as any)}
+                    className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-100 focus:outline-none focus:border-emerald-500 font-semibold"
+                  >
+                    <option value="Pendente">⌛ Pendente de Pagamento</option>
+                    <option value="Pago">✓ Pago / Baixado</option>
+                  </select>
+                </div>
               </div>
 
-              <div>
-                <label className="font-semibold text-zinc-300 block mb-1">Status Inicial</label>
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as any)}
-                  className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-100 focus:outline-none focus:border-blue-500 font-sans"
-                >
-                  <option value="Pendente">Pendente de Pagamento</option>
-                  <option value="Pago">Pago / Baixado</option>
-                </select>
-              </div>
-
+              {/* Submit Buttons */}
               <div className="flex justify-end space-x-2 pt-3 border-t border-zinc-800">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded-lg bg-zinc-800 text-zinc-300 hover:bg-zinc-700 font-medium text-xs transition-colors"
+                  className="px-4 py-2 rounded-xl bg-zinc-800 text-zinc-300 hover:bg-zinc-700 font-medium text-xs transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
+                  tabIndex={12}
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-sm transition-colors"
+                  className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition-all flex items-center space-x-1.5 cursor-pointer"
                 >
-                  {editingAccount ? 'Salvar Alterações' : 'Salvar Título'}
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{editingAccount ? 'Salvar Alterações' : 'Salvar Título'}</span>
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
+
 
       <ConfirmDialog
         open={pendingBaixaSemComprovante}

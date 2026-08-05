@@ -935,6 +935,7 @@ export default function App() {
             <FinancialModule
               financials={financials}
               obras={obras}
+              clients={clients}
               expenses={expenses}
               onAddAccount={handleAddFinancial}
               onUpdateAccount={handleUpdateFinancialAccount}
