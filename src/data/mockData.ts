@@ -22,20 +22,251 @@ import {
   MaterialCategoryConfig,
 } from '../types';
 
-export const INITIAL_CLIENTS: Client[] = [];
-export const INITIAL_OBRAS: Obra[] = [];
+export const INITIAL_CLIENTS: Client[] = [
+  {
+    id: 'CLI-001',
+    name: 'ENERGIAS DO TOCANTINS S.A.',
+    cpfCnpj: '01.234.567/0001-89',
+    phone: '(63) 3215-4000',
+    email: 'contato@energiastocantins.com.br',
+    city: 'Palmas - TO',
+    address: 'Av. Teotônio Segurado, Q. 501 Sul, Lote 12',
+    createdAt: '2026-01-10',
+  },
+  {
+    id: 'CLI-002',
+    name: 'FAZENDA SANTA MARIA SOLARES',
+    cpfCnpj: '98.765.432/0001-10',
+    phone: '(63) 9988-1122',
+    email: 'financeiro@santamariaagro.com.br',
+    city: 'Porto Nacional - TO',
+    address: 'Rodovia TO-050, KM 18, Zona Rural',
+    createdAt: '2026-01-15',
+  },
+  {
+    id: 'CLI-003',
+    name: 'CONDOMÍNIO RESIDENCIAL PARQUE DAS FLORES',
+    cpfCnpj: '12.345.678/0001-90',
+    phone: '(63) 3312-8899',
+    email: 'adm@parquedasflores.com.br',
+    city: 'Gurupi - TO',
+    address: 'Av. Goiás, nº 1450, Centro',
+    createdAt: '2026-02-01',
+  },
+];
+
+export const INITIAL_OBRAS: Obra[] = [
+  {
+    id: 'OBR-2026-001',
+    code: 'OBR-2026-001',
+    projectNumber: 'PROJ-SE-138KV',
+    clientId: 'CLI-001',
+    clientName: 'ENERGIAS DO TOCANTINS S.A.',
+    projectName: 'Ampliação de Subestação de Energia 138kV',
+    powerKva: 1500,
+    type: 'Subestação',
+    municipality: 'Palmas - TO',
+    concessionaria: 'Energisa TO',
+    status: 'Em Andamento',
+    progressPercent: 65,
+    startDate: '2026-01-15',
+    expectedEndDate: '2026-08-30',
+    totalValue: 450000.0,
+    spentMaterials: 180000.0,
+    spentLabor: 95000.0,
+    otherExpenses: 25000.0,
+    actualProfit: 150000.0,
+    createdAt: '2026-01-15',
+  },
+  {
+    id: 'OBR-2026-002',
+    code: 'OBR-2026-002',
+    projectNumber: 'PROJ-UFV-500KW',
+    clientId: 'CLI-002',
+    clientName: 'FAZENDA SANTA MARIA SOLARES',
+    projectName: 'Usina Solar Fotovoltaica Agro 500kWp',
+    powerKva: 500,
+    type: 'Usina Solar (UFV)',
+    municipality: 'Porto Nacional - TO',
+    concessionaria: 'Energisa TO',
+    status: 'Concluída',
+    progressPercent: 100,
+    startDate: '2026-02-01',
+    expectedEndDate: '2026-06-15',
+    totalValue: 280000.0,
+    spentMaterials: 130000.0,
+    spentLabor: 55000.0,
+    otherExpenses: 15000.0,
+    actualProfit: 80000.0,
+    createdAt: '2026-02-01',
+  },
+  {
+    id: 'OBR-2026-003',
+    code: 'OBR-2026-003',
+    projectNumber: 'PROJ-RD-LED',
+    clientId: 'CLI-003',
+    clientName: 'CONDOMÍNIO RESIDENCIAL PARQUE DAS FLORES',
+    projectName: 'Rede de Distribuição Subterrânea & Iluminação LED',
+    powerKva: 300,
+    type: 'Rede de Distribuição',
+    municipality: 'Gurupi - TO',
+    concessionaria: 'Energisa TO',
+    status: 'Em Andamento',
+    progressPercent: 35,
+    startDate: '2026-03-10',
+    expectedEndDate: '2026-09-30',
+    totalValue: 195000.0,
+    spentMaterials: 75000.0,
+    spentLabor: 38000.0,
+    otherExpenses: 12000.0,
+    actualProfit: 70000.0,
+    createdAt: '2026-03-10',
+  },
+];
+
+export const INITIAL_FINANCIAL_ACCOUNTS: FinancialAccount[] = [
+  {
+    id: 'FIN-IMP-001',
+    type: 'Pagar',
+    description: 'Guia DAS Simples Nacional (Imposto sobre Faturamento)',
+    category: 'Impostos',
+    totalValue: 14500.0,
+    paidValue: 14500.0,
+    dueDate: '2026-08-20',
+    paymentDate: '2026-08-18',
+    status: 'Pago',
+    supplierClient: 'Receita Federal / Simples Nacional',
+    costCenter: 'CC-TRIBUTOS',
+    paymentMethod: 'PIX',
+  },
+  {
+    id: 'FIN-IMP-002',
+    type: 'Pagar',
+    description: 'Imposto Municipal ISSQN - Obras de Energia',
+    category: 'Impostos',
+    totalValue: 3800.0,
+    paidValue: 0,
+    dueDate: '2026-08-25',
+    status: 'Pendente',
+    supplierClient: 'Prefeitura Municipal de Palmas',
+    costCenter: 'CC-TRIBUTOS',
+    paymentMethod: 'Boleto',
+  },
+  {
+    id: 'FIN-REC-001',
+    type: 'Receber',
+    description: 'Medição #02 - Subestação EnergoTocantins',
+    category: 'Faturamento Obra',
+    totalValue: 150000.0,
+    paidValue: 150000.0,
+    dueDate: '2026-08-10',
+    paymentDate: '2026-08-10',
+    status: 'Pago',
+    supplierClient: 'ENERGIAS DO TOCANTINS S.A.',
+    costCenter: 'CC-OBR-2026-001',
+    paymentMethod: 'Transferência',
+    obraId: 'OBR-2026-001',
+    obraCode: 'OBR-2026-001',
+  },
+  {
+    id: 'FIN-MAT-001',
+    type: 'Pagar',
+    description: 'Lote de Transformadores de Força 500kVA',
+    category: 'Material',
+    totalValue: 48000.0,
+    paidValue: 48000.0,
+    dueDate: '2026-08-05',
+    paymentDate: '2026-08-04',
+    status: 'Pago',
+    supplierClient: 'Siemens / WEG Equipamentos Elétricos',
+    costCenter: 'CC-MATERIAIS',
+    paymentMethod: 'Boleto',
+    obraId: 'OBR-2026-001',
+    obraCode: 'OBR-2026-001',
+  },
+];
+
+export const INITIAL_EMPLOYEES: Employee[] = [
+  {
+    id: 'EMP-001',
+    name: 'Carlos Eduardo Silva',
+    cpf: '123.456.789-00',
+    role: 'Engenheiro Eletricista',
+    salary: 12500.0,
+    dailyRate: 450.0,
+    status: 'Ativo',
+    phone: '(63) 99234-5678',
+    email: 'carlos.silva@proobras.com.br',
+  },
+  {
+    id: 'EMP-002',
+    name: 'Marcos Vinicius Oliveira',
+    cpf: '234.567.890-11',
+    role: 'Eletricista Linha Viva',
+    salary: 4800.0,
+    dailyRate: 220.0,
+    status: 'Ativo',
+    phone: '(63) 99123-4567',
+  },
+  {
+    id: 'EMP-003',
+    name: 'Roberto Alves Santos',
+    cpf: '345.678.901-22',
+    role: 'Técnico de Segurança do Trabalho',
+    salary: 4200.0,
+    dailyRate: 180.0,
+    status: 'Ativo',
+    phone: '(63) 98877-6655',
+  },
+];
+
+export const INITIAL_VEHICLES: Vehicle[] = [
+  {
+    id: 'VEH-001',
+    model: 'Camionete Hilux CD 4x4',
+    plate: 'QTA-8A90',
+    year: 2024,
+    fuelType: 'Diesel',
+    kmCurrent: 34500,
+    status: 'Ativo',
+  },
+  {
+    id: 'VEH-002',
+    model: 'Caminhão VW Constellation 15.190 Munk',
+    plate: 'MVZ-4520',
+    year: 2022,
+    fuelType: 'Diesel',
+    kmCurrent: 68200,
+    status: 'Ativo',
+  },
+];
+
+export const INITIAL_FUEL_LOGS: FuelLog[] = [
+  {
+    id: 'FL-001',
+    date: '2026-08-02',
+    vehicleId: 'VEH-001',
+    vehicleModel: 'Camionete Hilux CD 4x4',
+    vehiclePlate: 'QTA-8A90',
+    driverName: 'Marcos Vinicius Oliveira',
+    obraId: 'OBR-2026-001',
+    obraCode: 'OBR-2026-001',
+    stationName: 'Posto Shell Select Palmas',
+    liters: 65,
+    totalValue: 390.0,
+    kmCurrent: 34500,
+    avgConsumptionKml: 10.2,
+  },
+];
+
+export const INITIAL_EXPENSES: ObraExpense[] = [];
 export const INITIAL_PROTOCOL_CHECKLISTS: ProtocolChecklistItem[] = [];
 export const INITIAL_DOCUMENTS: ObraDocument[] = [];
-export const INITIAL_EXPENSES: ObraExpense[] = [];
 export const INITIAL_RDOS: DiarioObraRDO[] = [];
 export const INITIAL_GANTT_TASKS: GanttTask[] = [];
 export const INITIAL_INVENTORY: InventoryItem[] = [];
 export const INITIAL_STOCK_MOVEMENTS: StockMovement[] = [];
 export const INITIAL_PURCHASE_ORDERS: PurchaseOrder[] = [];
-export const INITIAL_FINANCIAL_ACCOUNTS: FinancialAccount[] = [];
-export const INITIAL_EMPLOYEES: Employee[] = [];
-export const INITIAL_VEHICLES: Vehicle[] = [];
-export const INITIAL_FUEL_LOGS: FuelLog[] = [];
 export const INITIAL_ENGINEERS: TechnicalEngineer[] = [];
 export const INITIAL_FINANCIAL_ACCOUNT_CONFIGS: FinancialAccountConfig[] = [];
 export const INITIAL_EXPENSE_CATEGORIES: ExpenseCategoryConfig[] = [];

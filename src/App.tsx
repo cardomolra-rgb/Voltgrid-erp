@@ -94,15 +94,46 @@ export default function App() {
     }
   }, [darkMode]);
 
-  // LocalStorage Helper for Master State Persistence
+  // LocalStorage Helper for Master State Persistence (With automatic legacy key migration & fallback retention)
   const loadLocal = <T,>(key: string, fallback: T): T => {
     try {
       const saved = localStorage.getItem(key);
-      return saved ? JSON.parse(saved) : fallback;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (typeof parsed === 'object' && parsed !== null && Object.keys(parsed).length > 0) return parsed;
+      }
+
+      // Try reading from legacy key (voltgrid_...) if proobras_ was empty
+      const legacyKey = key.replace('proobras_', 'voltgrid_');
+      const legacySaved = localStorage.getItem(legacyKey);
+      if (legacySaved) {
+        const parsedLegacy = JSON.parse(legacySaved);
+        if (Array.isArray(parsedLegacy) && parsedLegacy.length > 0) {
+          try {
+            localStorage.setItem(key, legacySaved);
+          } catch (e) {}
+          return parsedLegacy;
+        }
+        if (typeof parsedLegacy === 'object' && parsedLegacy !== null && Object.keys(parsedLegacy).length > 0) {
+          try {
+            localStorage.setItem(key, legacySaved);
+          } catch (e) {}
+          return parsedLegacy;
+        }
+      }
+
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed;
+      }
+
+      return fallback;
     } catch (e) {
       return fallback;
     }
   };
+
 
   // Registered Users and Permissions State
   const [systemUsers, setSystemUsers] = useState<SystemUserItem[]>(() =>
