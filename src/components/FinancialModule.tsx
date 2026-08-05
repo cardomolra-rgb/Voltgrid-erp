@@ -17,12 +17,13 @@ import {
   Eye,
   Search,
 } from 'lucide-react';
-import { FinancialAccount, Obra, ObraExpense, Client } from '../types';
+import { FinancialAccount, Obra, ObraExpense, Client, SupplierItem } from '../types';
 
 interface FinancialModuleProps {
   financials: FinancialAccount[];
   obras: Obra[];
   clients?: Client[];
+  suppliers?: SupplierItem[];
   expenses?: ObraExpense[];
   onAddAccount: (acc: FinancialAccount) => void;
   onUpdateAccount?: (acc: FinancialAccount) => void;
@@ -36,6 +37,7 @@ export const FinancialModule: React.FC<FinancialModuleProps> = ({
   financials,
   obras,
   clients = [],
+  suppliers = [],
   expenses = [],
   onAddAccount,
   onUpdateAccount,
@@ -99,12 +101,17 @@ export const FinancialModule: React.FC<FinancialModuleProps> = ({
       if (c.name) set.add(c.name);
     });
 
+    suppliers.forEach((s) => {
+      if (s.razaoSocial) set.add(s.razaoSocial);
+      if (s.nomeFantasia && s.nomeFantasia !== s.razaoSocial) set.add(s.nomeFantasia);
+    });
+
     financials.forEach((f) => {
       if (f.supplierClient) set.add(f.supplierClient);
     });
 
     return Array.from(set);
-  }, [clients, financials]);
+  }, [clients, suppliers, financials]);
 
   const filteredFavorecidos = candidateFavorecidos.filter((fav) =>
     fav.toLowerCase().includes((supplierClient || '').toLowerCase())

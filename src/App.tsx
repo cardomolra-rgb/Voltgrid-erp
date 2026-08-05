@@ -38,12 +38,15 @@ import {
   INITIAL_DOCUMENT_CATEGORIES,
   INITIAL_MATERIAL_CATEGORIES,
   INITIAL_SYSTEM_USERS,
+  INITIAL_SUPPLIERS,
 } from './data/mockData';
 
 
 import {
   Obra,
   Client,
+  SupplierItem,
+
   InventoryItem,
   StockMovement,
   PurchaseOrder,
@@ -195,6 +198,7 @@ export default function App() {
   const [proposals, setProposals] = useState<CommercialProposal[]>(() => loadLocal('proobras_proposals', []));
   const [employeePaymentLogs, setEmployeePaymentLogs] = useState<EmployeePaymentLog[]>(() => loadLocal('proobras_payment_logs', []));
   const [approvedContracts, setApprovedContracts] = useState<ApprovedContract[]>(() => loadLocal('proobras_approved_contracts', []));
+  const [suppliers, setSuppliers] = useState<SupplierItem[]>(() => loadLocal('proobras_suppliers', INITIAL_SUPPLIERS));
 
   // Auto-Save Effect: Persists state directly to browser/app folder storage whenever modified
   useEffect(() => {
@@ -223,6 +227,7 @@ export default function App() {
       localStorage.setItem('proobras_proposals', JSON.stringify(proposals));
       localStorage.setItem('proobras_payment_logs', JSON.stringify(employeePaymentLogs));
       localStorage.setItem('proobras_approved_contracts', JSON.stringify(approvedContracts));
+      localStorage.setItem('proobras_suppliers', JSON.stringify(suppliers));
     } catch (err) {
       console.warn('LocalStorage save error:', err);
     }
@@ -248,7 +253,9 @@ export default function App() {
     proposals,
     employeePaymentLogs,
     approvedContracts,
+    suppliers,
   ]);
+
 
   const handleApproveContract = (contract: ApprovedContract) => {
     setApprovedContracts((prev) => [contract, ...prev]);
@@ -967,6 +974,7 @@ export default function App() {
               financials={financials}
               obras={obras}
               clients={clients}
+              suppliers={suppliers}
               expenses={expenses}
               onAddAccount={handleAddFinancial}
               onUpdateAccount={handleUpdateFinancialAccount}
@@ -1038,7 +1046,7 @@ export default function App() {
                   : activeTab === 'cadastros_usuarios'
                   ? 'usuarios'
                   : activeTab === 'cadastros_fornecedores'
-                  ? 'empresa'
+                  ? 'fornecedores'
                   : 'documentos_empresa'
               }
               onRoleChange={setRole}
@@ -1078,9 +1086,14 @@ export default function App() {
               onAddMaterialCategory={(mc) => setMaterialCategories((prev) => [mc, ...prev])}
               onUpdateMaterialCategory={(mc) => setMaterialCategories((prev) => prev.map((m) => m.id === mc.id ? mc : m))}
               onDeleteMaterialCategory={(id) => setMaterialCategories((prev) => prev.filter((m) => m.id !== id))}
+              suppliers={suppliers}
+              onAddSupplier={(sup) => setSuppliers((prev) => [sup, ...prev])}
+              onUpdateSupplier={(sup) => setSuppliers((prev) => prev.map((s) => s.id === sup.id ? sup : s))}
+              onDeleteSupplier={(id) => setSuppliers((prev) => prev.filter((s) => s.id !== id))}
             />
           )}
         </main>
+
       </div>
     </div>
   );

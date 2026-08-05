@@ -49,9 +49,12 @@ import {
   MaterialCategoryConfig,
   UserRole,
   SystemUserItem,
+  SupplierItem,
   maskCpfCnpj,
   maskPhone,
 } from '../types';
+import { INITIAL_SUPPLIERS } from '../data/mockData';
+
 
 const ALL_SYSTEM_MODULES = [
   { id: 'obras', label: '🏗️ Obras Ativas' },
@@ -120,6 +123,11 @@ interface CadastrosModuleProps {
   onAddMaterialCategory: (mc: MaterialCategoryConfig) => void;
   onUpdateMaterialCategory: (mc: MaterialCategoryConfig) => void;
   onDeleteMaterialCategory: (id: string) => void;
+
+  suppliers?: SupplierItem[];
+  onAddSupplier?: (sup: SupplierItem) => void;
+  onUpdateSupplier?: (sup: SupplierItem) => void;
+  onDeleteSupplier?: (id: string) => void;
 }
 
 export const CadastrosModule: React.FC<CadastrosModuleProps> = ({
@@ -158,7 +166,12 @@ export const CadastrosModule: React.FC<CadastrosModuleProps> = ({
   onAddMaterialCategory,
   onUpdateMaterialCategory,
   onDeleteMaterialCategory,
+  suppliers: propsSuppliers,
+  onAddSupplier,
+  onUpdateSupplier,
+  onDeleteSupplier,
 }) => {
+
   const [activeSubTab, setActiveSubTab] = useState<string>(initialSubTab || 'documentos_empresa');
 
   React.useEffect(() => {
@@ -475,7 +488,24 @@ Documento autenticado e verificado no ERP ProObras.
   };
 
   // 3. CADASTRO DE FORNECEDORES STATE
-  const [suppliers, setSuppliers] = useState<SupplierItem[]>([]);
+  const [suppliers, setSuppliers] = useState<SupplierItem[]>(() => {
+    if (propsSuppliers && propsSuppliers.length > 0) return propsSuppliers;
+    try {
+      const saved = localStorage.getItem('proobras_suppliers');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return INITIAL_SUPPLIERS;
+  });
+
+  React.useEffect(() => {
+    if (propsSuppliers && propsSuppliers.length > 0) {
+      setSuppliers(propsSuppliers);
+    }
+  }, [propsSuppliers]);
+
   const [showAddSupplierModal, setShowAddSupplierModal] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<SupplierItem | null>(null);
 
@@ -518,24 +548,22 @@ Documento autenticado e verificado no ERP ProObras.
     e.preventDefault();
     if (!supRazao.trim()) return;
 
+    let updatedList: SupplierItem[];
+
     if (editingSupplier) {
-      setSuppliers(
-        suppliers.map((s) =>
-          s.id === editingSupplier.id
-            ? {
-                ...s,
-                razaoSocial: supRazao.trim(),
-                nomeFantasia: supFantasia.trim() || supRazao.trim(),
-                cnpj: supCnpj.trim(),
-                category: supCategory,
-                contactPerson: supContact.trim(),
-                phone: supPhone.trim(),
-                email: supEmail.trim(),
-                cityState: supCityState.trim(),
-              }
-            : s
-        )
-      );
+      const updatedSup: SupplierItem = {
+        ...editingSupplier,
+        razaoSocial: supRazao.trim(),
+        nomeFantasia: supFantasia.trim() || supRazao.trim(),
+        cnpj: supCnpj.trim(),
+        category: supCategory,
+        contactPerson: supContact.trim(),
+        phone: supPhone.trim(),
+        email: supEmail.trim(),
+        cityState: supCityState.trim(),
+      };
+      if (onUpdateSupplier) onUpdateSupplier(updatedSup);
+      updatedList = suppliers.map((s) => (s.id === editingSupplier.id ? updatedSup : s));
       setEditingSupplier(null);
       setSaveBannerMessage(`Fornecedor "${supRazao}" atualizado com sucesso!`);
     } else {
@@ -551,13 +579,44 @@ Documento autenticado e verificado no ERP ProObras.
         cityState: supCityState.trim(),
         status: 'Ativo',
       };
-      setSuppliers([newSup, ...suppliers]);
+      if (onAddSupplier) onAddSupplier(newSup);
+      updatedList = [newSup, ...suppliers];
       setSaveBannerMessage(`Novo fornecedor "${supRazao}" cadastrado com sucesso!`);
     }
+
+    setSuppliers(updatedList);
+    try {
+      localStorage.setItem('proobras_suppliers', JSON.stringify(updatedList));
+    } catch (err) {}
 
     setShowAddSupplierModal(false);
     setTimeout(() => setSaveBannerMessage(null), 4000);
   };
+
+  const handleDeleteSupplier = (id: string) => {
+    if (onDeleteSupplier) onDeleteSupplier(id);
+    const updatedList = suppliers.filter((s) => s.id !== id);
+    setSuppliers(updatedList);
+    try {
+      localStorage.setItem('proobras_suppliers', JSON.stringify(updatedList));
+    } catch (err) {}
+    setSaveBannerMessage('Fornecedor removido com sucesso!');
+    setTimeout(() => setSaveBannerMessage(null), 4000);
+  };
+
+  const handleToggleSupplierStatus = (sup: SupplierItem) => {
+    const updatedSup: SupplierItem = {
+      ...sup,
+      status: sup.status === 'Ativo' ? 'Inativo' : 'Ativo',
+    };
+    if (onUpdateSupplier) onUpdateSupplier(updatedSup);
+    const updatedList = suppliers.map((s) => (s.id === sup.id ? updatedSup : s));
+    setSuppliers(updatedList);
+    try {
+      localStorage.setItem('proobras_suppliers', JSON.stringify(updatedList));
+    } catch (err) {}
+  };
+
 
   // Company Form Local State
   const [companyForm, setCompanyForm] = useState<SystemCompanyConfig>(companyConfig);
@@ -1635,11 +1694,7 @@ Documento autenticado e verificado no ERP ProObras.
                         <td className="py-3.5 px-3 text-center">
                           <button
                             type="button"
-                            onClick={() =>
-                              setSuppliers(
-                                suppliers.map((s) => (s.id === sup.id ? { ...s, status: s.status === 'Ativo' ? 'Inativo' : 'Ativo' } : s))
-                              )
-                            }
+                            onClick={() => handleToggleSupplierStatus(sup)}
                             className={`px-2.5 py-0.5 rounded text-[10px] font-bold font-mono cursor-pointer ${
                               sup.status === 'Ativo'
                                 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
@@ -1659,7 +1714,7 @@ Documento autenticado e verificado no ERP ProObras.
                               <Edit className="w-3.5 h-3.5" />
                             </button>
                             <button
-                              onClick={() => setSuppliers(suppliers.filter((s) => s.id !== sup.id))}
+                              onClick={() => handleDeleteSupplier(sup.id)}
                               title="Excluir Fornecedor"
                               className="p-1.5 rounded-lg bg-zinc-900 hover:bg-rose-600 text-zinc-400 hover:text-white border border-zinc-800 transition-colors"
                             >
@@ -1667,6 +1722,7 @@ Documento autenticado e verificado no ERP ProObras.
                             </button>
                           </div>
                         </td>
+
                       </tr>
                     ))
                 )}

@@ -20,7 +20,9 @@ import {
   ConcessionariaConfig,
   DocumentCategoryConfig,
   MaterialCategoryConfig,
+  SupplierItem,
 } from '../types';
+
 
 export const INITIAL_CLIENTS: Client[] = [
   {
@@ -274,6 +276,46 @@ export const INITIAL_OBRA_TYPES: ObraTypeConfig[] = [];
 export const INITIAL_CONCESSIONARIAS: ConcessionariaConfig[] = [];
 export const INITIAL_DOCUMENT_CATEGORIES: DocumentCategoryConfig[] = [];
 export const INITIAL_MATERIAL_CATEGORIES: MaterialCategoryConfig[] = [];
+
+export const INITIAL_SUPPLIERS: SupplierItem[] = [
+  {
+    id: 'SUP-001',
+    razaoSocial: 'SIEMENS ENERGY BRASIL LTDA',
+    nomeFantasia: 'Siemens Energy',
+    cnpj: '44.013.159/0001-16',
+    category: 'Transformadores & Subestações',
+    contactPerson: 'Roberto Almeida',
+    phone: '(11) 3908-2000',
+    email: 'vendas@siemens-energy.com.br',
+    cityState: 'São Paulo - SP',
+    status: 'Ativo',
+  },
+  {
+    id: 'SUP-002',
+    razaoSocial: 'ROMAGNOLE PRODUTOS ELÉTRICOS S.A.',
+    nomeFantasia: 'Romagnole Elétrica',
+    cnpj: '78.435.123/0001-90',
+    category: 'Postes & Concretagem',
+    contactPerson: 'Juliana Costa',
+    phone: '(44) 3233-8000',
+    email: 'comercial@romagnole.com.br',
+    cityState: 'Mandaguari - PR',
+    status: 'Ativo',
+  },
+  {
+    id: 'SUP-003',
+    razaoSocial: 'WEG EQUIPAMENTOS ELÉTRICOS S.A.',
+    nomeFantasia: 'WEG Automação',
+    cnpj: '84.429.058/0001-92',
+    category: 'Inversores & Usinas Solares',
+    contactPerson: 'Fernando Souza',
+    phone: '(47) 3276-4000',
+    email: 'contato@weg.net',
+    cityState: 'Jaraguá do Sul - SC',
+    status: 'Ativo',
+  },
+];
+
 
 export const INITIAL_SYSTEM_USERS = [
   {

@@ -651,3 +651,17 @@ export interface ApprovedContract {
   documentType: 'contrato' | 'procuracao';
   fileName: string;
 }
+
+export interface SupplierItem {
+  id: string;
+  razaoSocial: string;
+  nomeFantasia: string;
+  cnpj: string;
+  category: string;
+  contactPerson: string;
+  phone: string;
+  email: string;
+  cityState: string;
+  status: 'Ativo' | 'Inativo';
+}
+
